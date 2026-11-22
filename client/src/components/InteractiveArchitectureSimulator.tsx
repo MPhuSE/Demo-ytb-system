@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Play, Pause, RotateCcw, ArrowRight, ArrowLeft, 
-  CheckCircle2, Sun, Moon, Terminal, Sparkles
+  CheckCircle2, Sun, Moon, Terminal, Sparkles, Eye, Layers, Target
 } from 'lucide-react';
 
 /* ============================================================
@@ -2152,10 +2152,52 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
   const [speed, setSpeed] = useState<number>(1);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [revealMode, setRevealMode] = useState<'progressive' | 'step_only' | 'all'>('progressive');
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const scenario = ALL_SCENARIOS.find((s) => s.id === selectedScenarioId) || SCENARIO_OVERVIEW;
   const stepData = scenario.steps[currentStep - 1] || scenario.steps[0];
+
+  // Progressive Reveal Sets
+  const { revealedNodeIds, revealedConnIds } = React.useMemo(() => {
+    if (revealMode === 'all') {
+      return {
+        revealedNodeIds: new Set(scenario.nodes.map((n) => n.id)),
+        revealedConnIds: new Set(scenario.connections.map((c) => c.id)),
+      };
+    }
+
+    if (revealMode === 'step_only') {
+      return {
+        revealedNodeIds: new Set(stepData.activeNodes),
+        revealedConnIds: new Set(stepData.activeConnections),
+      };
+    }
+
+    // Default 'progressive' mode: accumulate all nodes and connections up to currentStep
+    const nodeSet = new Set<string>();
+    const connSet = new Set<string>();
+
+    for (let i = 0; i < currentStep; i++) {
+      const s = scenario.steps[i];
+      if (s) {
+        s.activeNodes.forEach((id) => nodeSet.add(id));
+        s.activeConnections.forEach((id) => connSet.add(id));
+      }
+    }
+
+    return { revealedNodeIds: nodeSet, revealedConnIds: connSet };
+  }, [scenario, currentStep, stepData, revealMode]);
+
+  // Identify nodes that appear for the FIRST time in the current step
+  const newlyRevealedNodes = React.useMemo(() => {
+    if (currentStep === 1) return new Set(stepData.activeNodes);
+    const priorSet = new Set<string>();
+    for (let i = 0; i < currentStep - 1; i++) {
+      scenario.steps[i]?.activeNodes.forEach((id) => priorSet.add(id));
+    }
+    return new Set(stepData.activeNodes.filter((id) => !priorSet.has(id)));
+  }, [scenario, currentStep, stepData]);
 
   // When changing scenario, reset step to 1
   const handleSelectScenario = (id: ScenarioId) => {
@@ -2437,6 +2479,83 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
             </div>
           ))}
 
+          {/* Mode switch: Progressive (Step-by-Step reveal) vs Step-Only vs Full */}
+          <div style={{
+            display: 'inline-flex',
+            background: theme === 'light' ? '#ffffff' : '#27272a',
+            border: '1.5px solid #18181b',
+            borderRadius: '8px',
+            padding: '2px',
+            gap: '2px',
+            marginLeft: '0.2rem'
+          }}>
+            <button
+              onClick={() => setRevealMode('progressive')}
+              style={{
+                background: revealMode === 'progressive' ? '#18181b' : 'transparent',
+                color: revealMode === 'progressive' ? '#ffffff' : (theme === 'light' ? '#18181b' : '#a1a1aa'),
+                border: 'none',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '0.74rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                transition: 'all 0.15s ease'
+              }}
+              title="Hiện từng bước: Đến bước nào thì khối đó mới hiện ra (Khuyên dùng)"
+            >
+              <Eye size={11} color={revealMode === 'progressive' ? '#facc15' : 'currentColor'} />
+              <span>Hiện từng bước</span>
+            </button>
+
+            <button
+              onClick={() => setRevealMode('step_only')}
+              style={{
+                background: revealMode === 'step_only' ? '#18181b' : 'transparent',
+                color: revealMode === 'step_only' ? '#ffffff' : (theme === 'light' ? '#18181b' : '#a1a1aa'),
+                border: 'none',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '0.74rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                transition: 'all 0.15s ease'
+              }}
+              title="Chỉ hiển thị các khối tham gia trong bước này"
+            >
+              <Target size={11} />
+              <span>Chỉ bước này</span>
+            </button>
+
+            <button
+              onClick={() => setRevealMode('all')}
+              style={{
+                background: revealMode === 'all' ? '#18181b' : 'transparent',
+                color: revealMode === 'all' ? '#ffffff' : (theme === 'light' ? '#18181b' : '#a1a1aa'),
+                border: 'none',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '0.74rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                transition: 'all 0.15s ease'
+              }}
+              title="Hiển thị toàn bộ kiến trúc"
+            >
+              <Layers size={11} />
+              <span>Toàn bộ</span>
+            </button>
+          </div>
+
           {/* Controls: Play/Pause, Speed, Reset */}
           <div style={{ display: 'flex', gap: '0.35rem', marginLeft: '0.4rem' }}>
             <button
@@ -2583,21 +2702,39 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               </defs>
 
               {/* ============================================================
-                  ISOMETRIC CONNECTING PATHWAYS (Black crisp stroke like image)
+                  ISOMETRIC CONNECTING PATHWAYS (Progressive Reveal)
               ============================================================ */}
               {scenario.connections.map((conn) => {
+                const isRevealed = revealedConnIds.has(conn.id);
                 const isActive = stepData.activeConnections.includes(conn.id);
+
+                if (!isRevealed) return null;
+
                 return (
-                  <path
-                    key={conn.id}
-                    id={`wire-${conn.id}`}
-                    d={conn.pathD}
-                    fill="none"
-                    stroke="#18181b"
-                    strokeWidth={isActive ? '2.5' : '1.8'}
-                    strokeDasharray={isActive ? '6 4' : 'none'}
-                    opacity={isActive ? 1 : 0.55}
-                  />
+                  <g key={conn.id} style={{
+                    opacity: isActive ? 1 : 0.45,
+                    transition: 'opacity 0.4s ease'
+                  }}>
+                    {/* Glowing highlight aura under active wire */}
+                    {isActive && (
+                      <path
+                        d={conn.pathD}
+                        fill="none"
+                        stroke={conn.packetColor || '#38bdf8'}
+                        strokeWidth="5"
+                        strokeLinecap="round"
+                        opacity="0.3"
+                      />
+                    )}
+                    <path
+                      id={`wire-${conn.id}`}
+                      d={conn.pathD}
+                      fill="none"
+                      stroke="#18181b"
+                      strokeWidth={isActive ? '2.5' : '1.8'}
+                      strokeDasharray={isActive ? '6 4' : 'none'}
+                    />
+                  </g>
                 );
               })}
 
@@ -2606,15 +2743,19 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
                   (Native SVG animateMotion for 100% smooth continuous roll)
               ============================================================ */}
               {scenario.connections.map((conn) => {
+                const isRevealed = revealedConnIds.has(conn.id);
                 const isActive = stepData.activeConnections.includes(conn.id);
-                if (!isActive) return null;
+                if (!isRevealed || !isActive) return null;
 
                 const ballColor = conn.packetColor || '#ef4444';
                 const duration = speed === 1 ? '1.5s' : '0.9s';
 
                 return (
                   <g key={`ball-${conn.id}`}>
-                    <circle r="5.5" fill={ballColor} stroke="#18181b" strokeWidth="1.5">
+                    <circle r="7.5" fill={ballColor} opacity="0.35">
+                      <animateMotion dur={duration} repeatCount="indefinite" path={conn.pathD} />
+                    </circle>
+                    <circle r="5" fill={ballColor} stroke="#18181b" strokeWidth="1.5">
                       <animateMotion dur={duration} repeatCount="indefinite" path={conn.pathD} />
                     </circle>
                   </g>
@@ -2622,44 +2763,81 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               })}
 
               {/* ============================================================
-                  3D ISOMETRIC NODES & PLATFORMS
+                  3D ISOMETRIC NODES & PLATFORMS (Progressive Reveal)
               ============================================================ */}
               {scenario.nodes.map((node) => {
+                const isRevealed = revealedNodeIds.has(node.id);
                 const isActive = stepData.activeNodes.includes(node.id);
-
-                if (node.isPlatform) {
-                  return (
-                    <IsometricClientPlatform
-                      key={node.id}
-                      cx={node.cx}
-                      cy={node.cy}
-                      theme={theme}
-                      label={node.platformLabel}
-                      badge={node.platformBadge}
-                    />
-                  );
-                }
+                const isNew = newlyRevealedNodes.has(node.id);
 
                 return (
-                  <Isometric3DHexBlock
+                  <g
                     key={node.id}
-                    cx={node.cx}
-                    cy={node.cy}
-                    rx={node.rx || 52}
-                    ry={node.ry || 28}
-                    depth={node.depth || 22}
-                    topColor={node.topColor}
-                    leftColor={node.leftColor}
-                    rightColor={node.rightColor}
-                    strokeColor="#18181b"
-                    label={node.label}
-                    subLabel={node.subLabel}
-                    badge={node.badge}
-                    metric={node.metric}
-                    iconType={node.iconType}
-                    isActive={isActive}
-                    theme={theme}
-                  />
+                    style={{
+                      opacity: isRevealed ? (isActive ? 1 : 0.85) : 0,
+                      transform: isRevealed ? 'scale(1) translateY(0px)' : 'scale(0.72) translateY(24px)',
+                      transformOrigin: `${node.cx}px ${node.cy}px`,
+                      transition: 'all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                      pointerEvents: isRevealed ? 'auto' : 'none',
+                      visibility: isRevealed ? 'visible' : 'hidden',
+                    }}
+                  >
+                    {node.isPlatform ? (
+                      <IsometricClientPlatform
+                        cx={node.cx}
+                        cy={node.cy}
+                        theme={theme}
+                        label={node.platformLabel}
+                        badge={node.platformBadge}
+                      />
+                    ) : (
+                      <Isometric3DHexBlock
+                        cx={node.cx}
+                        cy={node.cy}
+                        rx={node.rx || 58}
+                        ry={node.ry || 32}
+                        depth={node.depth || 18}
+                        topColor={node.topColor}
+                        leftColor={node.leftColor}
+                        rightColor={node.rightColor}
+                        strokeColor="#18181b"
+                        label={node.label}
+                        subLabel={node.subLabel}
+                        badge={node.badge}
+                        metric={node.metric}
+                        iconType={node.iconType}
+                        isActive={isActive}
+                        theme={theme}
+                      />
+                    )}
+
+                    {/* NEWLY REVEALED POP BADGE (BẬT LÊN KHI VỪA XUẤT HIỆN Ở BƯỚC NÀY) */}
+                    {isRevealed && isNew && currentStep > 1 && (
+                      <g transform={`translate(${node.cx + (node.rx || 58) - 10}, ${node.cy - (node.ry || 32) - 16})`}>
+                        <rect
+                          x="-18"
+                          y="-8"
+                          width="36"
+                          height="16"
+                          rx="8"
+                          fill="#ef4444"
+                          stroke="#18181b"
+                          strokeWidth="1.2"
+                        />
+                        <text
+                          x="0"
+                          y="3.5"
+                          textAnchor="middle"
+                          fontSize="7.5"
+                          fontWeight="900"
+                          fill="#ffffff"
+                          letterSpacing="0.3px"
+                        >
+                          MỚI ⭐
+                        </text>
+                      </g>
+                    )}
+                  </g>
                 );
               })}
             </svg>
