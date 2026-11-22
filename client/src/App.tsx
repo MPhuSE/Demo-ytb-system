@@ -6,7 +6,7 @@ import { VideoPlayerModal } from './components/VideoPlayerModal.tsx';
 import { ArchitectureModal } from './components/ArchitectureModal.tsx';
 import { VideoItem } from './types.ts';
 import { api } from './services/api.ts';
-import { RefreshCw, Play, Film, Server, Database, Video } from 'lucide-react';
+import { RefreshCw, Film, Server, Database, Video } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [videos, setVideos] = useState<VideoItem[]>([]);

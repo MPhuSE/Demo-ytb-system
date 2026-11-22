@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Hls from 'hls.js';
-import { X, Play, Sliders, Check, Network, AlertTriangle } from 'lucide-react';
+import { X, Play, Sliders, Network, AlertTriangle } from 'lucide-react';
 import { VideoItem, PlaybackResponse } from '../types.ts';
 import { api } from '../services/api.ts';
 

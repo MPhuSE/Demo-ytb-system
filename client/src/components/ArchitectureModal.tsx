@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Layers, GitCommit, HardDrive, Cpu, HelpCircle, CheckCircle } from 'lucide-react';
+import { X, Layers, HardDrive, Cpu, HelpCircle } from 'lucide-react';
 
 interface ArchitectureModalProps {
   isOpen: boolean;
