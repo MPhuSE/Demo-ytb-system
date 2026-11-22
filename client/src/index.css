@@ -47,6 +47,12 @@ input, select {
   padding: 0 1.5rem;
 }
 
+.simulator-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
 /* Header */
 .navbar {
   position: sticky;

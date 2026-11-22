@@ -267,14 +267,14 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
       </div>
 
       {/* Main Grid: Interactive Canvas on Left, Details on Right */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.65fr) minmax(320px, 1fr)', gap: '1.25rem', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.8fr) minmax(310px, 360px)', gap: '1.25rem', alignItems: 'start' }}>
         
-        {/* Left: Interactive Canvas with SVG Connectors and Isometric-styled Nodes */}
+        {/* Left: Interactive Canvas with Responsive SVG Connectors and Percentage-positioned Nodes */}
         <div style={{
           background: '#121212',
           border: '1px solid #282828',
           borderRadius: '12px',
-          padding: '1.5rem',
+          padding: '1.25rem',
           position: 'relative',
           overflow: 'hidden',
           minHeight: '560px',
@@ -293,7 +293,7 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
           }} />
 
           {/* Section Labels */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', zIndex: 2, marginBottom: '0.75rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', zIndex: 2, marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
             <span style={{ fontSize: '0.72rem', color: '#f87171', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>
               🔴 VIDEO DATA PATH (Xử lý tệp nhị phân nặng)
             </span>
@@ -302,11 +302,15 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
             </span>
           </div>
 
-          {/* Visual Architecture Layout */}
+          {/* Visual Architecture Layout (Responsive Percentage Based) */}
           <div style={{ position: 'relative', height: '460px', width: '100%', zIndex: 3 }}>
             
             {/* SVG Connecting Paths with dynamic animated flowing dashes */}
-            <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+            <svg 
+              viewBox="0 0 1000 480" 
+              preserveAspectRatio="none" 
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
+            >
               <defs>
                 <linearGradient id="grad-blue" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#3ea6ff" />
@@ -324,7 +328,7 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
 
               {/* Conn: Client -> Original Storage */}
               <path
-                d="M 120 230 C 120 120, 200 90, 270 90"
+                d="M 180 225 C 180 87, 210 87, 250 87"
                 fill="none"
                 stroke={stepData.activeConnections.includes('conn-client-orig') ? '#f87171' : '#333'}
                 strokeWidth={stepData.activeConnections.includes('conn-client-orig') ? 3 : 1.5}
@@ -334,7 +338,7 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
 
               {/* Conn: Original Storage -> Transcoder */}
               <path
-                d="M 370 90 L 460 90"
+                d="M 450 87 L 500 87"
                 fill="none"
                 stroke={stepData.activeConnections.includes('conn-orig-worker') ? '#f87171' : '#333'}
                 strokeWidth={stepData.activeConnections.includes('conn-orig-worker') ? 3 : 1.5}
@@ -344,7 +348,7 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
 
               {/* Conn: Transcoder -> Transcoded Storage */}
               <path
-                d="M 560 90 L 640 90"
+                d="M 710 87 L 750 87"
                 fill="none"
                 stroke={stepData.activeConnections.includes('conn-worker-transstorage') ? '#f87171' : '#333'}
                 strokeWidth={stepData.activeConnections.includes('conn-worker-transstorage') ? 3 : 1.5}
@@ -354,7 +358,7 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
 
               {/* Conn: Transcoded Storage -> CDN Edge */}
               <path
-                d="M 685 130 C 685 180, 685 200, 685 240"
+                d="M 860 125 L 860 215"
                 fill="none"
                 stroke={stepData.activeConnections.includes('conn-cdn-transstorage') ? '#4ade80' : '#333'}
                 strokeWidth={stepData.activeConnections.includes('conn-cdn-transstorage') ? 3 : 1.5}
@@ -364,7 +368,7 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
 
               {/* Conn: CDN Edge -> Client (Playback) */}
               <path
-                d="M 640 280 C 450 310, 250 280, 120 260"
+                d="M 750 255 C 500 290, 300 270, 180 245"
                 fill="none"
                 stroke={stepData.activeConnections.includes('conn-client-cdn') ? '#4ade80' : '#333'}
                 strokeWidth={stepData.activeConnections.includes('conn-client-cdn') ? 3 : 1.5}
@@ -374,7 +378,7 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
 
               {/* Conn: Client -> API Server */}
               <path
-                d="M 120 260 C 140 370, 200 370, 270 370"
+                d="M 180 245 C 180 385, 210 385, 250 385"
                 fill="none"
                 stroke={stepData.activeConnections.includes('conn-client-api') ? '#3ea6ff' : '#333'}
                 strokeWidth={stepData.activeConnections.includes('conn-client-api') ? 3 : 1.5}
@@ -384,7 +388,7 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
 
               {/* Conn: API Server -> Redis */}
               <path
-                d="M 370 360 C 420 340, 430 310, 460 300"
+                d="M 450 380 C 475 350, 485 315, 500 302"
                 fill="none"
                 stroke={stepData.activeConnections.includes('conn-api-redis') ? '#facc15' : '#333'}
                 strokeWidth={stepData.activeConnections.includes('conn-api-redis') ? 3 : 1.5}
@@ -394,7 +398,7 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
 
               {/* Conn: API Server -> SQLite */}
               <path
-                d="M 370 380 C 420 400, 430 420, 460 430"
+                d="M 450 390 L 500 410"
                 fill="none"
                 stroke={stepData.activeConnections.includes('conn-api-db') ? '#3ea6ff' : '#333'}
                 strokeWidth={stepData.activeConnections.includes('conn-api-db') ? 3 : 1.5}
@@ -404,7 +408,7 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
 
               {/* Conn: API Server -> Queue */}
               <path
-                d="M 320 330 C 320 250, 430 200, 460 200"
+                d="M 350 345 C 350 240, 420 195, 500 195"
                 fill="none"
                 stroke={stepData.activeConnections.includes('conn-api-queue') ? '#facc15' : '#333'}
                 strokeWidth={stepData.activeConnections.includes('conn-api-queue') ? 3 : 1.5}
@@ -414,22 +418,34 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
 
               {/* Conn: Queue -> Worker */}
               <path
-                d="M 510 170 L 510 130"
+                d="M 605 165 L 605 125"
                 fill="none"
                 stroke={stepData.activeConnections.includes('conn-queue-worker') ? '#facc15' : '#333'}
                 strokeWidth={stepData.activeConnections.includes('conn-queue-worker') ? 3 : 1.5}
                 strokeDasharray={stepData.activeConnections.includes('conn-queue-worker') ? '6 4' : 'none'}
                 className={stepData.activeConnections.includes('conn-queue-worker') ? 'flow-animated' : ''}
               />
+
+              {/* Conn: Worker -> Redis / Completion */}
+              <path
+                d="M 605 125 L 605 270"
+                fill="none"
+                stroke={stepData.activeConnections.includes('conn-worker-cq') ? '#4ade80' : '#333'}
+                strokeWidth={stepData.activeConnections.includes('conn-worker-cq') ? 3 : 1.5}
+                strokeDasharray={stepData.activeConnections.includes('conn-worker-cq') ? '6 4' : 'none'}
+                className={stepData.activeConnections.includes('conn-worker-cq') ? 'flow-animated' : ''}
+              />
             </svg>
 
-            {/* NODE 1: Client / User */}
+            {/* NODE 1: Client / User (Column 1: left 2%, width 16%) */}
             <div style={{
               position: 'absolute',
-              top: '200px',
-              left: '15px',
-              width: '105px',
-              padding: '0.75rem',
+              top: '190px',
+              left: '2%',
+              width: '16%',
+              minWidth: '95px',
+              padding: '0.65rem 0.4rem',
+              boxSizing: 'border-box',
               background: stepData.activeNodes.includes('client') ? '#1e293b' : '#181818',
               border: `2px solid ${stepData.activeNodes.includes('client') ? '#3ea6ff' : '#333'}`,
               borderRadius: '10px',
@@ -437,25 +453,27 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               textAlign: 'center',
               transition: 'all 0.3s ease',
             }}>
-              <div style={{ margin: '0 auto 0.25rem', width: '32px', height: '32px', borderRadius: '50%', background: '#ff0000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Users size={16} color="#fff" />
+              <div style={{ margin: '0 auto 0.25rem', width: '30px', height: '30px', borderRadius: '50%', background: '#ff0000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Users size={15} color="#fff" />
               </div>
-              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff' }}>User / Client</div>
-              <div style={{ fontSize: '0.65rem', color: '#aaa', marginTop: '2px' }}>Upload & Watch</div>
+              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>User / Client</div>
+              <div style={{ fontSize: '0.62rem', color: '#aaa', marginTop: '2px', whiteSpace: 'nowrap' }}>Upload & Watch</div>
               {stepData.activeNodes.includes('client') && (
-                <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: '#3ea6ff', color: '#000', fontSize: '0.6rem', fontWeight: 800, padding: '1px 6px', borderRadius: '8px', whiteSpace: 'nowrap' }}>
-                  ACTIVE CLIENT
+                <div style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: '#3ea6ff', color: '#000', fontSize: '0.58rem', fontWeight: 800, padding: '1px 5px', borderRadius: '8px', whiteSpace: 'nowrap' }}>
+                  ACTIVE
                 </div>
               )}
             </div>
 
-            {/* NODE 2: Original Storage (Upper Left) */}
+            {/* NODE 2: Original Storage (Column 2: left 25%, width 20%) */}
             <div style={{
               position: 'absolute',
-              top: '55px',
-              left: '260px',
-              width: '115px',
-              padding: '0.65rem',
+              top: '50px',
+              left: '25%',
+              width: '20%',
+              minWidth: '105px',
+              padding: '0.6rem 0.4rem',
+              boxSizing: 'border-box',
               background: stepData.activeNodes.includes('orig-storage') ? '#261b1b' : '#181818',
               border: `2px solid ${stepData.activeNodes.includes('orig-storage') ? '#f87171' : '#333'}`,
               borderRadius: '10px',
@@ -463,23 +481,25 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               textAlign: 'center',
               transition: 'all 0.3s ease',
             }}>
-              <HardDrive size={22} color="#f87171" style={{ margin: '0 auto 0.2rem' }} />
-              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#f87171' }}>Original Storage</div>
-              <div style={{ fontSize: '0.65rem', color: '#888' }}>UUID MP4 files</div>
+              <HardDrive size={20} color="#f87171" style={{ margin: '0 auto 0.2rem' }} />
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f87171', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Original Storage</div>
+              <div style={{ fontSize: '0.62rem', color: '#888', whiteSpace: 'nowrap' }}>UUID MP4 files</div>
               {stepData.activeNodes.includes('orig-storage') && (
-                <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: '#f87171', color: '#fff', fontSize: '0.6rem', fontWeight: 800, padding: '1px 6px', borderRadius: '8px' }}>
+                <div style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: '#f87171', color: '#fff', fontSize: '0.58rem', fontWeight: 800, padding: '1px 5px', borderRadius: '8px' }}>
                   RECEIVING
                 </div>
               )}
             </div>
 
-            {/* NODE 3: Transcoding Worker FFmpeg (Upper Center) */}
+            {/* NODE 3: Transcoding Worker FFmpeg (Column 3: left 50%, width 21%) */}
             <div style={{
               position: 'absolute',
-              top: '55px',
-              left: '450px',
-              width: '125px',
-              padding: '0.65rem',
+              top: '50px',
+              left: '50%',
+              width: '21%',
+              minWidth: '110px',
+              padding: '0.6rem 0.4rem',
+              boxSizing: 'border-box',
               background: stepData.activeNodes.includes('transcoder') ? '#2b2114' : '#181818',
               border: `2px solid ${stepData.activeNodes.includes('transcoder') ? '#f59e0b' : '#333'}`,
               borderRadius: '10px',
@@ -487,23 +507,25 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               textAlign: 'center',
               transition: 'all 0.3s ease',
             }}>
-              <Cpu size={22} color="#f59e0b" style={{ margin: '0 auto 0.2rem' }} />
-              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#f59e0b' }}>FFmpeg Worker</div>
-              <div style={{ fontSize: '0.65rem', color: '#888' }}>360p &bull; 720p HLS</div>
+              <Cpu size={20} color="#f59e0b" style={{ margin: '0 auto 0.2rem' }} />
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f59e0b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>FFmpeg Worker</div>
+              <div style={{ fontSize: '0.62rem', color: '#888', whiteSpace: 'nowrap' }}>360p &bull; 720p HLS</div>
               {stepData.activeNodes.includes('transcoder') && (
-                <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: '#f59e0b', color: '#000', fontSize: '0.6rem', fontWeight: 800, padding: '1px 6px', borderRadius: '8px', whiteSpace: 'nowrap' }}>
-                  8.96x ENCODING
+                <div style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: '#f59e0b', color: '#000', fontSize: '0.58rem', fontWeight: 800, padding: '1px 5px', borderRadius: '8px', whiteSpace: 'nowrap' }}>
+                  8.96x ENCODE
                 </div>
               )}
             </div>
 
-            {/* NODE 4: Transcoded Storage (Upper Right) */}
+            {/* NODE 4: Transcoded Storage (Column 4: left 75%, width 22% -> ends at 97%!) */}
             <div style={{
               position: 'absolute',
-              top: '55px',
-              left: '630px',
-              width: '115px',
-              padding: '0.65rem',
+              top: '50px',
+              left: '75%',
+              width: '22%',
+              minWidth: '110px',
+              padding: '0.6rem 0.4rem',
+              boxSizing: 'border-box',
               background: stepData.activeNodes.includes('trans-storage') ? '#1c261e' : '#181818',
               border: `2px solid ${stepData.activeNodes.includes('trans-storage') ? '#4ade80' : '#333'}`,
               borderRadius: '10px',
@@ -511,18 +533,20 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               textAlign: 'center',
               transition: 'all 0.3s ease',
             }}>
-              <Layers size={22} color="#4ade80" style={{ margin: '0 auto 0.2rem' }} />
-              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#4ade80' }}>Transcoded Storage</div>
-              <div style={{ fontSize: '0.65rem', color: '#888' }}>.m3u8 & .ts chunks</div>
+              <Layers size={20} color="#4ade80" style={{ margin: '0 auto 0.2rem' }} />
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#4ade80', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Transcoded Storage</div>
+              <div style={{ fontSize: '0.62rem', color: '#888', whiteSpace: 'nowrap' }}>.m3u8 & .ts chunks</div>
             </div>
 
-            {/* NODE 5: CDN Edge Node (Center Right) */}
+            {/* NODE 5: CDN Edge Node (Column 4: left 75%, width 22% -> ends at 97%!) */}
             <div style={{
               position: 'absolute',
-              top: '235px',
-              left: '625px',
-              width: '125px',
-              padding: '0.65rem',
+              top: '215px',
+              left: '75%',
+              width: '22%',
+              minWidth: '110px',
+              padding: '0.6rem 0.4rem',
+              boxSizing: 'border-box',
               background: stepData.activeNodes.includes('cdn') ? '#162828' : '#181818',
               border: `2px solid ${stepData.activeNodes.includes('cdn') ? '#2dd4bf' : '#333'}`,
               borderRadius: '10px',
@@ -530,23 +554,25 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               textAlign: 'center',
               transition: 'all 0.3s ease',
             }}>
-              <Globe size={22} color="#2dd4bf" style={{ margin: '0 auto 0.2rem' }} />
-              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#2dd4bf' }}>CDN Edge Cache</div>
-              <div style={{ fontSize: '0.65rem', color: '#888' }}>SGN-Edge-01</div>
+              <Globe size={20} color="#2dd4bf" style={{ margin: '0 auto 0.2rem' }} />
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#2dd4bf', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>CDN Edge Cache</div>
+              <div style={{ fontSize: '0.62rem', color: '#888', whiteSpace: 'nowrap' }}>SGN-Edge-01</div>
               {stepData.activeNodes.includes('cdn') && (
-                <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: '#2dd4bf', color: '#000', fontSize: '0.6rem', fontWeight: 800, padding: '1px 6px', borderRadius: '8px', whiteSpace: 'nowrap' }}>
-                  CACHE HIT (148MB/s)
+                <div style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: '#2dd4bf', color: '#000', fontSize: '0.58rem', fontWeight: 800, padding: '1px 5px', borderRadius: '8px', whiteSpace: 'nowrap' }}>
+                  HIT (148MB/s)
                 </div>
               )}
             </div>
 
-            {/* NODE 6: API Server (Lower Left) */}
+            {/* NODE 6: API Server (Column 2: left 25%, width 20%) */}
             <div style={{
               position: 'absolute',
-              top: '335px',
-              left: '260px',
-              width: '115px',
-              padding: '0.65rem',
+              top: '345px',
+              left: '25%',
+              width: '20%',
+              minWidth: '105px',
+              padding: '0.6rem 0.4rem',
+              boxSizing: 'border-box',
               background: stepData.activeNodes.includes('api-server') ? '#1e283b' : '#181818',
               border: `2px solid ${stepData.activeNodes.includes('api-server') ? '#3ea6ff' : '#333'}`,
               borderRadius: '10px',
@@ -554,23 +580,25 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               textAlign: 'center',
               transition: 'all 0.3s ease',
             }}>
-              <Server size={22} color="#3ea6ff" style={{ margin: '0 auto 0.2rem' }} />
-              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#3ea6ff' }}>Express API</div>
-              <div style={{ fontSize: '0.65rem', color: '#888' }}>Port 3001</div>
+              <Server size={20} color="#3ea6ff" style={{ margin: '0 auto 0.2rem' }} />
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#3ea6ff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Express API</div>
+              <div style={{ fontSize: '0.62rem', color: '#888', whiteSpace: 'nowrap' }}>Port 3001</div>
               {stepData.activeNodes.includes('api-server') && (
-                <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: '#3ea6ff', color: '#000', fontSize: '0.6rem', fontWeight: 800, padding: '1px 6px', borderRadius: '8px', whiteSpace: 'nowrap' }}>
-                  11.9k RPS (7.8ms)
+                <div style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: '#3ea6ff', color: '#000', fontSize: '0.58rem', fontWeight: 800, padding: '1px 5px', borderRadius: '8px', whiteSpace: 'nowrap' }}>
+                  11.9k RPS
                 </div>
               )}
             </div>
 
-            {/* NODE 7: Queue (Lower Mid-Left) */}
+            {/* NODE 7: Queue (Column 3: left 50%, width 21%) */}
             <div style={{
               position: 'absolute',
-              top: '175px',
-              left: '450px',
-              width: '120px',
-              padding: '0.55rem',
+              top: '165px',
+              left: '50%',
+              width: '21%',
+              minWidth: '110px',
+              padding: '0.5rem 0.4rem',
+              boxSizing: 'border-box',
               background: stepData.activeNodes.includes('queue') ? '#262016' : '#181818',
               border: `2px solid ${stepData.activeNodes.includes('queue') ? '#facc15' : '#333'}`,
               borderRadius: '10px',
@@ -578,18 +606,20 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               textAlign: 'center',
               transition: 'all 0.3s ease',
             }}>
-              <Activity size={18} color="#facc15" style={{ margin: '0 auto 0.2rem' }} />
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#facc15' }}>Transcode Queue</div>
-              <div style={{ fontSize: '0.62rem', color: '#888' }}>Concurrency = 1</div>
+              <Activity size={16} color="#facc15" style={{ margin: '0 auto 0.2rem' }} />
+              <div style={{ fontSize: '0.73rem', fontWeight: 700, color: '#facc15', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Transcode Queue</div>
+              <div style={{ fontSize: '0.6rem', color: '#888', whiteSpace: 'nowrap' }}>Concurrency = 1</div>
             </div>
 
-            {/* NODE 8: Redis (Lower Center) */}
+            {/* NODE 8: Redis (Column 3: left 50%, width 21%) */}
             <div style={{
               position: 'absolute',
-              top: '280px',
-              left: '450px',
-              width: '120px',
-              padding: '0.55rem',
+              top: '270px',
+              left: '50%',
+              width: '21%',
+              minWidth: '110px',
+              padding: '0.5rem 0.4rem',
+              boxSizing: 'border-box',
               background: stepData.activeNodes.includes('redis') ? '#2b2114' : '#181818',
               border: `2px solid ${stepData.activeNodes.includes('redis') ? '#facc15' : '#333'}`,
               borderRadius: '10px',
@@ -597,18 +627,20 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               textAlign: 'center',
               transition: 'all 0.3s ease',
             }}>
-              <Database size={18} color="#facc15" style={{ margin: '0 auto 0.2rem' }} />
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#facc15' }}>Redis Cache</div>
-              <div style={{ fontSize: '0.62rem', color: '#888' }}>status:id (38k RPS)</div>
+              <Database size={16} color="#facc15" style={{ margin: '0 auto 0.2rem' }} />
+              <div style={{ fontSize: '0.73rem', fontWeight: 700, color: '#facc15', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Redis Cache</div>
+              <div style={{ fontSize: '0.6rem', color: '#888', whiteSpace: 'nowrap' }}>status:id (38k RPS)</div>
             </div>
 
-            {/* NODE 9: SQLite (Lower Right) */}
+            {/* NODE 9: SQLite (Column 3: left 50%, width 21%) */}
             <div style={{
               position: 'absolute',
-              top: '395px',
-              left: '450px',
-              width: '120px',
-              padding: '0.55rem',
+              top: '375px',
+              left: '50%',
+              width: '21%',
+              minWidth: '110px',
+              padding: '0.5rem 0.4rem',
+              boxSizing: 'border-box',
               background: stepData.activeNodes.includes('sqlite') ? '#1e2430' : '#181818',
               border: `2px solid ${stepData.activeNodes.includes('sqlite') ? '#60a5fa' : '#333'}`,
               borderRadius: '10px',
@@ -616,41 +648,39 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               textAlign: 'center',
               transition: 'all 0.3s ease',
             }}>
-              <Database size={18} color="#60a5fa" style={{ margin: '0 auto 0.2rem' }} />
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#60a5fa' }}>SQLite DB</div>
-              <div style={{ fontSize: '0.62rem', color: '#888' }}>WAL Mode &bull; Metadata</div>
+              <Database size={16} color="#60a5fa" style={{ margin: '0 auto 0.2rem' }} />
+              <div style={{ fontSize: '0.73rem', fontWeight: 700, color: '#60a5fa', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>SQLite DB</div>
+              <div style={{ fontSize: '0.6rem', color: '#888', whiteSpace: 'nowrap' }}>WAL Mode &bull; Metadata</div>
             </div>
 
           </div>
 
-          {/* Legend at bottom of canvas */}
+          {/* Legend at bottom of canvas - Responsive Grid Wrapping */}
           <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '1.25rem',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+            gap: '0.4rem 0.8rem',
             paddingTop: '0.75rem',
             borderTop: '1px solid #222',
             fontSize: '0.72rem',
             color: '#aaa',
-            flexWrap: 'wrap',
             zIndex: 2,
           }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#f87171' }} />
-              Tệp Video Nặng (Video Data Path)
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#f87171', flexShrink: 0 }} />
+              <span>Tệp Video Nặng</span>
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#3ea6ff' }} />
-              API Request (Metadata Path)
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#3ea6ff', flexShrink: 0 }} />
+              <span>API Request</span>
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#facc15' }} />
-              Queue & Redis State
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#facc15', flexShrink: 0 }} />
+              <span>Hàng Đợi & Redis</span>
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#4ade80' }} />
-              CDN HLS Delivery
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#4ade80', flexShrink: 0 }} />
+              <span>CDN HLS Delivery</span>
             </span>
           </div>
         </div>

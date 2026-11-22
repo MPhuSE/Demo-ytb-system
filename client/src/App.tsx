@@ -120,7 +120,7 @@ export const App: React.FC = () => {
         onSearchChange={setSearchQuery}
       />
 
-      <main className="container" style={{ flex: 1, paddingBottom: '3rem' }}>
+      <main className={activeView === 'simulator' ? 'simulator-container' : 'container'} style={{ flex: 1, paddingBottom: '3rem' }}>
         {activeView === 'simulator' ? (
           <InteractiveArchitectureSimulator onBackToHome={() => setActiveView('user')} />
         ) : activeView === 'admin' ? (
