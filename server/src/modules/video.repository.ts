@@ -75,4 +75,12 @@ export class VideoRepository {
     const stmt = db.prepare('SELECT * FROM renditions WHERE video_id = ? ORDER BY height DESC');
     return stmt.all(videoId) as RenditionEntity[];
   }
+
+  static delete(id: string): void {
+    const deleteRenditions = db.prepare('DELETE FROM renditions WHERE video_id = ?');
+    deleteRenditions.run(id);
+
+    const deleteVideo = db.prepare('DELETE FROM videos WHERE id = ?');
+    deleteVideo.run(id);
+  }
 }

@@ -23,6 +23,13 @@ export class TranscodeQueue {
     this.processNext();
   }
 
+  getQueueStatus(): { queueLength: number; isProcessing: boolean } {
+    return {
+      queueLength: this.queue.length,
+      isProcessing: this.isProcessing,
+    };
+  }
+
   private async processNext(): Promise<void> {
     if (this.isProcessing || this.queue.length === 0) {
       return;

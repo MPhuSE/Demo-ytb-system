@@ -1,4 +1,4 @@
-import { VideoItem, VideoStatusResponse, PlaybackResponse } from '../types.ts';
+import { VideoItem, VideoStatusResponse, PlaybackResponse, AdminStats, VideoFileItem } from '../types.ts';
 
 const API_BASE_URL = 'http://localhost:3001/api/v1';
 
@@ -72,5 +72,38 @@ export const api = {
       xhr.onerror = () => reject(new Error('Network error during upload'));
       xhr.send(formData);
     });
+  },
+
+  async deleteVideo(id: string): Promise<void> {
+    const res = await fetch(`${API_BASE_URL}/videos/${id}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || 'Failed to delete video');
+    }
+  },
+
+  async retryVideo(id: string): Promise<{ id: string; status: string }> {
+    const res = await fetch(`${API_BASE_URL}/videos/${id}/retry`, {
+      method: 'POST',
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || 'Failed to retry video processing');
+    }
+    return res.json();
+  },
+
+  async fetchAdminStats(): Promise<AdminStats> {
+    const res = await fetch(`${API_BASE_URL}/admin/stats`);
+    if (!res.ok) throw new Error('Failed to fetch admin stats');
+    return res.json();
+  },
+
+  async fetchVideoFiles(id: string): Promise<{ videoId: string; files: VideoFileItem[] }> {
+    const res = await fetch(`${API_BASE_URL}/admin/videos/${id}/files`);
+    if (!res.ok) throw new Error(`Failed to fetch files for video ${id}`);
+    return res.json();
   },
 };

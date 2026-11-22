@@ -45,6 +45,12 @@ export function createVideoRouter(controller: VideoController, storageDir: strin
   router.get('/videos/:id', controller.getVideoById);
   router.get('/videos/:id/status', controller.getVideoStatus);
   router.get('/videos/:id/playback', controller.getVideoPlayback);
+  router.post('/videos/:id/retry', controller.retryVideo);
+  router.delete('/videos/:id', controller.deleteVideo);
+
+  // Admin and System Inspection routes
+  router.get('/admin/stats', controller.getAdminStats);
+  router.get('/admin/videos/:id/files', controller.getVideoFiles);
 
   return router;
 }

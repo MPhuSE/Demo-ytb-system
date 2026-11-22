@@ -114,4 +114,73 @@ export class VideoController {
       next(err);
     }
   };
+
+  deleteVideo = (req: Request, res: Response, next: NextFunction): void => {
+    try {
+      const id = req.params.id as string;
+      this.service.deleteVideo(id);
+      res.status(200).json({ success: true, message: `Video ${id} deleted` });
+    } catch (err: any) {
+      if (err.status) {
+        res.status(err.status).json({
+          error: {
+            code: err.code || 'ERROR',
+            message: err.message,
+            requestId: req.headers['x-request-id'] || 'req_local',
+          },
+        });
+        return;
+      }
+      next(err);
+    }
+  };
+
+  retryVideo = (req: Request, res: Response, next: NextFunction): void => {
+    try {
+      const id = req.params.id as string;
+      const result = this.service.retryVideo(id);
+      res.status(202).json(result);
+    } catch (err: any) {
+      if (err.status) {
+        res.status(err.status).json({
+          error: {
+            code: err.code || 'ERROR',
+            message: err.message,
+            requestId: req.headers['x-request-id'] || 'req_local',
+          },
+        });
+        return;
+      }
+      next(err);
+    }
+  };
+
+  getAdminStats = (_req: Request, res: Response, next: NextFunction): void => {
+    try {
+      const stats = this.service.getAdminStats();
+      res.status(200).json(stats);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  getVideoFiles = (req: Request, res: Response, next: NextFunction): void => {
+    try {
+      const id = req.params.id as string;
+      const files = this.service.getVideoFiles(id);
+      res.status(200).json(files);
+    } catch (err: any) {
+      if (err.status) {
+        res.status(err.status).json({
+          error: {
+            code: err.code || 'ERROR',
+            message: err.message,
+            requestId: req.headers['x-request-id'] || 'req_local',
+          },
+        });
+        return;
+      }
+      next(err);
+    }
+  };
 }

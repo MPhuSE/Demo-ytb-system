@@ -26,3 +26,29 @@ export interface PlaybackResponse {
   masterUrl: string;
   qualities: string[];
 }
+
+export interface AdminStats {
+  counts: {
+    total: number;
+    queued: number;
+    processing: number;
+    ready: number;
+    failed: number;
+  };
+  queue: {
+    queueLength: number;
+    isProcessing: boolean;
+  };
+  storage: {
+    totalBytes: number;
+    formattedMB: string;
+  };
+}
+
+export interface VideoFileItem {
+  name: string;
+  size: number;
+  formattedSize: string;
+  type: 'master' | 'playlist' | 'segment';
+  updatedAt: string;
+}
