@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { VideoRepository } from '../modules/video.repository.js';
 import { PerformanceRepository } from '../modules/performance.repository.js';
 import { Transcoder } from './transcoder.js';
+import { redisManager } from '../infra/redis.js';
 
 interface TranscodeJob {
   videoId: string;
@@ -22,6 +23,7 @@ export class TranscodeQueue {
 
   addJob(videoId: string, originalPath: string, enqueuedAt: number = Date.now()): void {
     this.queue.push({ videoId, originalPath, enqueuedAt });
+    redisManager.set(`status:${videoId}`, JSON.stringify({ id: videoId, status: 'QUEUED', progress: 0, error: null }), 5);
     console.log(`[Queue] Added job for video ${videoId}. Queue length: ${this.queue.length}`);
     this.processNext();
   }

@@ -7,6 +7,7 @@ import { VideoController } from './modules/video.controller.js';
 import { VideoService } from './modules/video.service.js';
 import { TranscodeQueue } from './transcoding/queue.js';
 import { createVideoRouter } from './modules/video.routes.js';
+import { cdnManager } from './infra/cdn.js';
 
 export function createApp(storageDir: string) {
   const app = express();
@@ -21,7 +22,7 @@ export function createApp(storageDir: string) {
     origin: '*', // Allow frontend dev server
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Range', 'x-request-id'],
-    exposedHeaders: ['Content-Length', 'Content-Range'],
+    exposedHeaders: ['Content-Length', 'Content-Range', 'X-Cache-Status', 'X-CDN-Edge-Node'],
   }));
 
   app.use(express.json());
@@ -33,18 +34,8 @@ export function createApp(storageDir: string) {
     next();
   });
 
-  // Media static delivery (Video Path)
-  app.use('/media', (req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    if (req.path.endsWith('.m3u8')) {
-      res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
-      res.setHeader('Cache-Control', 'no-cache');
-    } else if (req.path.endsWith('.ts')) {
-      res.setHeader('Content-Type', 'video/MP2T');
-      res.setHeader('Cache-Control', 'public, max-age=86400');
-    }
-    next();
-  }, express.static(storageDir));
+  // Media static delivery (Video Path) with CDN Edge Caching simulation
+  app.use('/media', cdnManager.getMiddleware(storageDir), express.static(storageDir));
 
   // Control / API Path
   app.use('/api/v1', createVideoRouter(controller, storageDir));

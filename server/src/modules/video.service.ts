@@ -5,6 +5,8 @@ import { VideoRepository } from './video.repository.js';
 import { PerformanceRepository } from './performance.repository.js';
 import { TranscodeQueue } from '../transcoding/queue.js';
 import { VideoDTO, VideoEntity } from '../types/index.js';
+import { redisManager } from '../infra/redis.js';
+import { cdnManager } from '../infra/cdn.js';
 
 export class VideoService {
   private queue: TranscodeQueue;
@@ -47,16 +49,28 @@ export class VideoService {
     };
   }
 
-  getVideoStatus(id: string): { id: string; status: string; progress: number; error: string | null } | null {
+  async getVideoStatus(id: string): Promise<{ id: string; status: string; progress: number; error: string | null } | null> {
+    const cached = await redisManager.get(`status:${id}`);
+    if (cached) {
+      try {
+        return JSON.parse(cached);
+      } catch {}
+    }
+
     const video = VideoRepository.findById(id);
     if (!video) return null;
 
-    return {
+    const result = {
       id: video.id,
       status: video.status,
       progress: video.progress,
       error: video.error_message,
     };
+
+    const ttl = video.status === 'READY' ? 3600 : 2;
+    await redisManager.set(`status:${id}`, JSON.stringify(result), ttl);
+
+    return result;
   }
 
   getVideoPlayback(id: string, baseUrl: string): { videoId: string; masterUrl: string; qualities: string[] } {
@@ -147,9 +161,11 @@ export class VideoService {
     return { id, status: 'QUEUED' };
   }
 
-  getAdminStats() {
+  async getAdminStats() {
     const videos = VideoRepository.findAll();
     const queueStatus = this.queue.getQueueStatus();
+    const redisStatus = await redisManager.getStatus();
+    const cdnStats = cdnManager.getStats();
 
     const counts = {
       total: videos.length,
@@ -187,6 +203,8 @@ export class VideoService {
         totalBytes: totalStorageBytes,
         formattedMB: (totalStorageBytes / (1024 * 1024)).toFixed(2),
       },
+      redis: redisStatus,
+      cdn: cdnStats,
     };
   }
 

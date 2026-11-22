@@ -72,10 +72,10 @@ export class VideoController {
     }
   };
 
-  getVideoStatus = (req: Request, res: Response, next: NextFunction): void => {
+  getVideoStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id = req.params.id as string;
-      const status = this.service.getVideoStatus(id);
+      const status = await this.service.getVideoStatus(id);
       if (!status) {
         res.status(404).json({
           error: {
@@ -156,9 +156,9 @@ export class VideoController {
     }
   };
 
-  getAdminStats = (_req: Request, res: Response, next: NextFunction): void => {
+  getAdminStats = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const stats = this.service.getAdminStats();
+      const stats = await this.service.getAdminStats();
       res.status(200).json(stats);
     } catch (err) {
       next(err);

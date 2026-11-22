@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Server, HardDrive, RefreshCw, Trash2, RotateCw, 
-  FileText, Cpu, ArrowLeft, X, Activity, Film
+  FileText, Cpu, ArrowLeft, X, Activity, Film, Database, Globe
 } from 'lucide-react';
 import { VideoItem, AdminStats, VideoFileItem } from '../types.ts';
 import { api } from '../services/api.ts';
@@ -220,6 +220,57 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToUserView
           )}
         </div>
       </div>
+
+      {/* Redis & CDN Status Row */}
+      {stats && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+          {/* Redis Card */}
+          <div style={{ background: '#161616', border: '1px solid #282828', borderRadius: '10px', padding: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: 600, color: '#facc15' }}>
+                <Database size={16} />
+                <span>Redis (Metadata Cache & Queue)</span>
+              </div>
+              <span style={{ 
+                fontSize: '0.72rem', 
+                padding: '2px 8px', 
+                borderRadius: '4px', 
+                fontWeight: 600,
+                background: stats.redis?.connected ? 'rgba(43, 166, 64, 0.15)' : 'rgba(241, 196, 15, 0.15)',
+                color: stats.redis?.connected ? '#4ade80' : '#facc15'
+              }}>
+                {stats.redis?.connected ? 'CONNECTED (Port 6379)' : 'FALLBACK (In-Memory)'}
+              </span>
+            </div>
+            <div style={{ fontSize: '0.75rem', color: '#888', lineHeight: '1.5' }}>
+              Vai trò: Cache trạng thái video <code>status:&lt;id&gt;</code> &bull; Giảm tải đọc SQLite &bull; Hỗ trợ phân tán Worker.
+            </div>
+          </div>
+
+          {/* CDN Edge Card */}
+          <div style={{ background: '#161616', border: '1px solid #282828', borderRadius: '10px', padding: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: 600, color: '#3ea6ff' }}>
+                <Globe size={16} />
+                <span>CDN Edge Cache (Media Delivery)</span>
+              </div>
+              <span style={{ 
+                fontSize: '0.72rem', 
+                padding: '2px 8px', 
+                borderRadius: '4px', 
+                fontWeight: 700,
+                background: 'rgba(62, 166, 255, 0.15)',
+                color: '#60a5fa'
+              }}>
+                Tỉ lệ Cache HIT: {stats.cdn?.cacheHitRatio || '0.0%'}
+              </span>
+            </div>
+            <div style={{ fontSize: '0.75rem', color: '#888', lineHeight: '1.5' }}>
+              Node: <code>{stats.cdn?.edgeLocation}</code> &bull; HITS: <strong>{stats.cdn?.hits || 0}</strong> &bull; MISSES: <strong>{stats.cdn?.misses || 0}</strong> &bull; Header: <code>X-Cache-Status</code>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Videos Management Table */}
       <div style={{ background: '#161616', border: '1px solid #2a2a2a', borderRadius: '10px', overflow: 'hidden' }}>

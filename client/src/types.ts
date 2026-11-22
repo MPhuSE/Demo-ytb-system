@@ -43,6 +43,19 @@ export interface AdminStats {
     totalBytes: number;
     formattedMB: string;
   };
+  redis?: {
+    connected: boolean;
+    url: string;
+    mode: string;
+  };
+  cdn?: {
+    hits: number;
+    misses: number;
+    totalRequests: number;
+    cacheHitRatio: string;
+    cachedFilesCount: number;
+    edgeLocation: string;
+  };
 }
 
 export interface VideoFileItem {
