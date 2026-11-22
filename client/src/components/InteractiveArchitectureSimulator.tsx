@@ -24,7 +24,7 @@ interface IsometricBlockProps {
   subLabel?: string;
   badge?: string;
   metric?: string;
-  iconType?: 'server' | 'storage' | 'cpu' | 'cdn' | 'queue' | 'redis' | 'db';
+  iconType?: 'server' | 'storage' | 'cpu' | 'cdn' | 'queue' | 'redis' | 'db' | 'lb' | 'demuxer' | 'checksum' | 'slicer' | 'handler' | 'player';
   isActive?: boolean;
   theme?: 'light' | 'dark';
 }
@@ -32,8 +32,8 @@ interface IsometricBlockProps {
 const Isometric3DHexBlock: React.FC<IsometricBlockProps> = ({
   cx,
   cy,
-  rx = 52,
-  ry = 28,
+  rx = 54,
+  ry = 30,
   depth = 22,
   topColor,
   leftColor,
@@ -115,68 +115,238 @@ const Isometric3DHexBlock: React.FC<IsometricBlockProps> = ({
         strokeLinejoin="round"
       />
 
-      {/* Inner Icon / Micro Hardware Details on Top Face */}
-      {iconType === 'server' && (
-        <g opacity={theme === 'light' ? '0.75' : '0.9'}>
-          <rect x={cx - 15} y={cy - 12} width="30" height="4" rx="1.5" fill={strokeColor} />
-          <circle cx={cx - 11} cy={cy - 10} r="1" fill="#4ade80" />
-          <rect x={cx - 15} y={cy - 6} width="30" height="4" rx="1.5" fill={strokeColor} />
-          <circle cx={cx - 11} cy={cy - 4} r="1" fill="#38bdf8" />
-        </g>
-      )}
+      {/* ============================================================
+          VIBRANT 3D ISOMETRIC SYSTEM DESIGN ICONS
+      ============================================================ */}
 
+      {/* 1. Storage Canister Bucket (Alex Xu S3 / Storage Style) */}
       {iconType === 'storage' && (
-        <g opacity={theme === 'light' ? '0.8' : '0.95'}>
-          <ellipse cx={cx} cy={cy - 8} rx="12" ry="3.5" fill="none" stroke={strokeColor} strokeWidth="1.5" />
-          <path d={`M${cx - 12} ${cy - 8} V${cy - 2} C${cx - 12} ${cy + 1} ${cx + 12} ${cy + 1} ${cx + 12} ${cy - 2} V${cy - 8}`} fill="none" stroke={strokeColor} strokeWidth="1.5" />
+        <g transform={`translate(${cx}, ${cy - 10})`}>
+          <ellipse cx="0" cy="11" rx="13" ry="3.5" fill="rgba(0,0,0,0.22)" />
+          {/* Bucket Body */}
+          <path
+            d="M-13 -3 L-9.5 9 C-9.5 12, 9.5 12, 9.5 9 L13 -3 Z"
+            fill={label.toLowerCase().includes('original') || label.toLowerCase().includes('raw') || label.toLowerCase().includes('input') ? 'url(#grad-bucket-red)' : 'url(#grad-bucket-green)'}
+            stroke={strokeColor}
+            strokeWidth="1.4"
+            strokeLinejoin="round"
+          />
+          {/* Bucket Top Lip */}
+          <ellipse
+            cx="0"
+            cy="-3"
+            rx="13"
+            ry="4.2"
+            fill={label.toLowerCase().includes('original') || label.toLowerCase().includes('raw') || label.toLowerCase().includes('input') ? '#fca5a5' : '#86efac'}
+            stroke={strokeColor}
+            strokeWidth="1.4"
+          />
+          {/* Inner Void */}
+          <ellipse
+            cx="0"
+            cy="-3"
+            rx="8.5"
+            ry="2.4"
+            fill={label.toLowerCase().includes('original') || label.toLowerCase().includes('raw') || label.toLowerCase().includes('input') ? '#7f1d1d' : '#14532d'}
+          />
+          {/* Handle */}
+          <path
+            d="M-14 -3 C-14 -13, 14 -13, 14 -3"
+            fill="none"
+            stroke={strokeColor}
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
+          {/* Video Play Badge on Front */}
+          <rect x="-6" y="2" width="12" height="7.5" rx="1.8" fill="#18181b" stroke="#ffffff" strokeWidth="0.8" />
+          <polygon points="-2,3.5 -2,8 3,5.75" fill="#ffffff" />
         </g>
       )}
 
+      {/* 2. CPU / GPU Microchip Transcoder with Gold Pins & Gears */}
       {iconType === 'cpu' && (
-        <g opacity={theme === 'light' ? '0.85' : '0.95'}>
-          <rect x={cx - 10} y={cy - 12} width="20" height="12" rx="2" fill={strokeColor} />
-          <circle cx={cx} cy={cy - 6} r="2.5" fill="#facc15" />
+        <g transform={`translate(${cx}, ${cy - 10})`}>
+          <rect x="-13" y="-7" width="26" height="24" rx="4" fill="rgba(0,0,0,0.22)" />
+          {/* Golden Bus Pins */}
+          <line x1="-15" y1="-4" x2="-12" y2="-4" stroke="#f59e0b" strokeWidth="1.6" strokeLinecap="round" />
+          <line x1="-15" y1="2" x2="-12" y2="2" stroke="#f59e0b" strokeWidth="1.6" strokeLinecap="round" />
+          <line x1="-15" y1="8" x2="-12" y2="8" stroke="#f59e0b" strokeWidth="1.6" strokeLinecap="round" />
+          <line x1="12" y1="-4" x2="15" y2="-4" stroke="#f59e0b" strokeWidth="1.6" strokeLinecap="round" />
+          <line x1="12" y1="2" x2="15" y2="2" stroke="#f59e0b" strokeWidth="1.6" strokeLinecap="round" />
+          <line x1="12" y1="8" x2="15" y2="8" stroke="#f59e0b" strokeWidth="1.6" strokeLinecap="round" />
+          {/* Silicon Chip Body */}
+          <rect x="-12" y="-8" width="24" height="22" rx="3.5" fill="#18181b" stroke={strokeColor} strokeWidth="1.4" />
+          {/* Gold Die Heatspreader */}
+          <rect x="-8.5" y="-4.5" width="17" height="15" rx="2" fill="url(#grad-gold-chip)" stroke="#d97706" strokeWidth="1" />
+          {/* Dual Gear Processing Core */}
+          <circle cx="0" cy="3" r="4.8" fill="#18181b" />
+          <polygon points="0,-1 1.2,1.2 3.8,0.8 2.6,3 3.8,5.2 1.2,4.8 0,7 -1.2,4.8 -3.8,5.2 -2.6,3 -3.8,0.8 -1.2,1.2" fill="#facc15" />
+          <circle cx="0" cy="3" r="1.6" fill="#18181b" />
         </g>
       )}
 
+      {/* 3. CDN Edge Cloud with Golden Lightning & Radio Broadcast */}
       {iconType === 'cdn' && (
-        <g opacity={theme === 'light' ? '0.8' : '0.95'}>
-          <circle cx={cx} cy={cy - 7} r="7" fill="none" stroke={strokeColor} strokeWidth="1.5" />
-          <ellipse cx={cx} cy={cy - 7} rx="3.5" ry="7" fill="none" stroke={strokeColor} strokeWidth="1" />
-          <line x1={cx - 7} y1={cy - 7} x2={cx + 7} y2={cy - 7} stroke={strokeColor} strokeWidth="1" />
+        <g transform={`translate(${cx}, ${cy - 10})`}>
+          <ellipse cx="0" cy="11" rx="14" ry="3.5" fill="rgba(0,0,0,0.22)" />
+          {/* Radio Waves */}
+          <path d="M-16 -2 A8 8 0 0 0 -16 6" fill="none" stroke="#38bdf8" strokeWidth="1.4" strokeLinecap="round" />
+          <path d="M16 -2 A8 8 0 0 1 16 6" fill="none" stroke="#38bdf8" strokeWidth="1.4" strokeLinecap="round" />
+          {/* Volumetric Cloud Body */}
+          <path
+            d="M-13 6 C-17 6, -18 1, -15 -2 C-16 -7, -10 -9, -7 -7 C-4 -12, 5 -12, 8 -7 C12 -7, 16 -4, 15 1 C18 3, 17 6, 13 6 Z"
+            fill="url(#grad-cdn-cloud)"
+            stroke={strokeColor}
+            strokeWidth="1.4"
+            strokeLinejoin="round"
+          />
+          {/* Golden 3D Lightning Bolt */}
+          <polygon
+            points="0.5,-9 -5,-1 0,-1 -3,8 5,-2 0.5,-2 2.5,-9"
+            fill="#facc15"
+            stroke="#18181b"
+            strokeWidth="0.9"
+            strokeLinejoin="round"
+          />
         </g>
       )}
 
-      {iconType === 'redis' && (
-        <g opacity={theme === 'light' ? '0.85' : '0.95'}>
-          <polygon points={`${cx},${cy - 14} ${cx + 7},${cy - 8} ${cx},${cy - 2} ${cx - 7},${cy - 8}`} fill="#ef4444" stroke={strokeColor} strokeWidth="1" />
-          <polygon points={`${cx},${cy - 11} ${cx - 2},${cy - 7} ${cx + 1},${cy - 7} ${cx - 1},${cy - 3} ${cx + 3},${cy - 8} ${cx},${cy - 8}`} fill="#facc15" />
+      {/* 4. Load Balancer 4-Way Diverging Neon Arrows */}
+      {iconType === 'lb' && (
+        <g transform={`translate(${cx}, ${cy - 10})`}>
+          <rect x="-12" y="-10" width="24" height="22" rx="5" fill="url(#grad-lb-blue)" stroke={strokeColor} strokeWidth="1.4" />
+          <circle cx="0" cy="1" r="2.8" fill="#ffffff" stroke={strokeColor} strokeWidth="1" />
+          {/* 4 Diverging Arrows */}
+          <path d="M0 -2 L0 -7 M-2 -5 L0 -7 L2 -5" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M0 4 L0 9 M-2 7 L0 9 L2 7" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M-3 1 L-8 1 M-6 -1 L-8 1 L-6 3" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M3 1 L8 1 M6 -1 L8 1 L6 3" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
         </g>
       )}
 
-      {iconType === 'db' && (
-        <g opacity={theme === 'light' ? '0.8' : '0.95'}>
-          <ellipse cx={cx} cy={cy - 11} rx="10" ry="3" fill="none" stroke={strokeColor} strokeWidth="1.3" />
-          <path d={`M${cx - 10} ${cy - 11} V${cy - 6} C${cx - 10} ${cy - 4} ${cx + 10} ${cy - 4} ${cx + 10} ${cy - 6} V${cy - 11}`} fill="none" stroke={strokeColor} strokeWidth="1.3" />
-          <path d={`M${cx - 10} ${cy - 6} V${cy - 1} C${cx - 10} ${cy + 1} ${cx + 10} ${cy + 1} ${cx + 10} ${cy - 1} V${cy - 6}`} fill="none" stroke={strokeColor} strokeWidth="1.3" />
+      {/* 5. Express API Server Blade Rack */}
+      {iconType === 'server' && (
+        <g transform={`translate(${cx}, ${cy - 10})`}>
+          <rect x="-14" y="-11" width="28" height="23" rx="3" fill="#18181b" stroke={strokeColor} strokeWidth="1.4" />
+          {/* Unit 1 */}
+          <rect x="-11" y="-8.5" width="22" height="4.5" rx="1.2" fill="#334155" />
+          <circle cx="-7.5" cy="-6.2" r="1.1" fill="#4ade80" />
+          <circle cx="-4" cy="-6.2" r="1.1" fill="#38bdf8" />
+          <line x1="2" y1="-6.2" x2="8" y2="-6.2" stroke="#64748b" strokeWidth="1" strokeLinecap="round" />
+          {/* Unit 2 */}
+          <rect x="-11" y="-2" width="22" height="4.5" rx="1.2" fill="#334155" />
+          <circle cx="-7.5" cy="0.3" r="1.1" fill="#4ade80" />
+          <circle cx="-4" cy="0.3" r="1.1" fill="#fbbf24" />
+          <line x1="2" y1="0.3" x2="8" y2="0.3" stroke="#64748b" strokeWidth="1" strokeLinecap="round" />
+          {/* Unit 3 */}
+          <rect x="-11" y="4.5" width="22" height="4.5" rx="1.2" fill="#334155" />
+          <circle cx="-7.5" cy="6.8" r="1.1" fill="#4ade80" />
+          <circle cx="-4" cy="6.8" r="1.1" fill="#4ade80" />
+          <line x1="2" y1="6.8" x2="8" y2="6.8" stroke="#64748b" strokeWidth="1" strokeLinecap="round" />
         </g>
       )}
 
+      {/* 6. Triple Mail Envelopes Completion Queue (Alex Xu Style) */}
       {iconType === 'queue' && (
-        <g opacity={theme === 'light' ? '0.85' : '0.95'}>
-          <rect x={cx - 14} y={cy - 11} width="28" height="8" rx="2" fill="none" stroke={strokeColor} strokeWidth="1.3" />
-          <rect x={cx - 11} y={cy - 9} width="4" height="4" rx="1" fill="#f59e0b" />
-          <rect x={cx - 4} y={cy - 9} width="4" height="4" rx="1" fill="#f59e0b" />
-          <rect x={cx + 3} y={cy - 9} width="4" height="4" rx="1" fill="#f59e0b" />
+        <g transform={`translate(${cx}, ${cy - 10})`}>
+          {/* Envelope 1 */}
+          <g transform="translate(-7, -4)">
+            <rect x="-5" y="-3.5" width="10" height="7" rx="1" fill="#ddd6fe" stroke={strokeColor} strokeWidth="1" />
+            <path d="M-5 -3.5 L0 0.5 L5 -3.5" fill="none" stroke="#7c3aed" strokeWidth="1" />
+          </g>
+          {/* Envelope 2 */}
+          <g transform="translate(7, -4)">
+            <rect x="-5" y="-3.5" width="10" height="7" rx="1" fill="#ddd6fe" stroke={strokeColor} strokeWidth="1" />
+            <path d="M-5 -3.5 L0 0.5 L5 -3.5" fill="none" stroke="#7c3aed" strokeWidth="1" />
+          </g>
+          {/* Envelope 3 */}
+          <g transform="translate(0, 2)">
+            <rect x="-10" y="-6" width="20" height="12" rx="1.5" fill="url(#grad-queue-purple)" stroke={strokeColor} strokeWidth="1.3" />
+            <polygon points="-10,-6 0,0 10,-6" fill="#f3e8ff" stroke={strokeColor} strokeWidth="1" />
+            <path d="M-10 6 L-3.5 0 M10 6 L3.5 0" stroke="#7c3aed" strokeWidth="1" />
+          </g>
+        </g>
+      )}
+
+      {/* 7. Redis 3-Tier Ruby In-Memory Cache with Golden Bolt */}
+      {iconType === 'redis' && (
+        <g transform={`translate(${cx}, ${cy - 10})`}>
+          <rect x="-12" y="6" width="24" height="5" rx="2" fill="#7f1d1d" stroke={strokeColor} strokeWidth="1.2" />
+          <rect x="-13" y="0.5" width="26" height="5" rx="2" fill="#b91c1c" stroke={strokeColor} strokeWidth="1.2" />
+          <rect x="-14" y="-5" width="28" height="5" rx="2" fill="url(#grad-redis-ruby)" stroke={strokeColor} strokeWidth="1.2" />
+          <polygon points="1,-9 -4,-3 0,-3 -2,4 5,-2 1,-2 3,-9" fill="#facc15" stroke={strokeColor} strokeWidth="0.9" />
+        </g>
+      )}
+
+      {/* 8. 3-Tier Metallic Cylindrical Database Disks */}
+      {iconType === 'db' && (
+        <g transform={`translate(${cx}, ${cy - 10})`}>
+          <ellipse cx="0" cy="8.5" rx="12" ry="3.2" fill="#1e3a8a" stroke={strokeColor} strokeWidth="1.2" />
+          <path d="M-12 5 V8.5 C-12 11 12 11 12 8.5 V5" fill="#1e40af" stroke={strokeColor} strokeWidth="1.2" />
+          <circle cx="-6.5" cy="7.5" r="1.1" fill="#4ade80" />
+          <path d="M-12 0.5 V4 C-12 6.5 12 6.5 12 4 V0.5" fill="#2563eb" stroke={strokeColor} strokeWidth="1.2" />
+          <circle cx="-6.5" cy="3" r="1.1" fill="#38bdf8" />
+          <path d="M-12 -4 V-0.5 C-12 2 12 2 12 -0.5 V-4" fill="#3b82f6" stroke={strokeColor} strokeWidth="1.2" />
+          <ellipse cx="0" cy="-4" rx="12" ry="3.2" fill="#93c5fd" stroke={strokeColor} strokeWidth="1.2" />
+          <circle cx="-6.5" cy="-1.5" r="1.1" fill="#4ade80" />
+        </g>
+      )}
+
+      {/* 9. Completion Handler Automation Engine */}
+      {iconType === 'handler' && (
+        <g transform={`translate(${cx}, ${cy - 10})`}>
+          <rect x="-13" y="-9" width="26" height="21" rx="4" fill="url(#grad-handler-violet)" stroke={strokeColor} strokeWidth="1.4" />
+          <circle cx="-3" cy="1.5" r="5" fill="#3b0764" stroke="#c084fc" strokeWidth="1.2" />
+          <circle cx="6" cy="-2" r="5" fill="#22c55e" stroke={strokeColor} strokeWidth="1.2" />
+          <path d="M3.5 -2 L5.5 0 L8.5 -4" fill="none" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </g>
+      )}
+
+      {/* 10. Optical Prism Demuxer */}
+      {iconType === 'demuxer' && (
+        <g transform={`translate(${cx}, ${cy - 10})`}>
+          <polygon points="0,-10 -11,7 11,7" fill="url(#grad-demux-prism)" stroke={strokeColor} strokeWidth="1.4" />
+          <line x1="-15" y1="-1" x2="-3" y2="-1" stroke="#ffffff" strokeWidth="1.8" />
+          <line x1="3" y1="-3" x2="14" y2="-7" stroke="#f472b6" strokeWidth="1.8" />
+          <line x1="3" y1="1" x2="14" y2="5" stroke="#38bdf8" strokeWidth="1.8" />
+        </g>
+      )}
+
+      {/* 11. Checksum Security Shield */}
+      {iconType === 'checksum' && (
+        <g transform={`translate(${cx}, ${cy - 10})`}>
+          <path d="M0 -11 L10 -7 V1 C10 7 0 11 0 11 C0 11 -10 7 -10 1 V-7 Z" fill="#facc15" stroke={strokeColor} strokeWidth="1.4" />
+          <path d="M-4 0 L-1 3 L5 -3" fill="none" stroke="#18181b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </g>
+      )}
+
+      {/* 12. Chunk Slicer & Buffer */}
+      {iconType === 'slicer' && (
+        <g transform={`translate(${cx}, ${cy - 10})`}>
+          <rect x="-13" y="-5" width="7.5" height="11" rx="1.5" fill="#38bdf8" stroke={strokeColor} strokeWidth="1.2" />
+          <rect x="-3.5" y="-5" width="7.5" height="11" rx="1.5" fill="#f59e0b" stroke={strokeColor} strokeWidth="1.2" />
+          <rect x="6" y="-5" width="7.5" height="11" rx="1.5" fill="#22c55e" stroke={strokeColor} strokeWidth="1.2" />
+          <line x1="-15" y1="-8" x2="15" y2="-8" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="3 2" />
+        </g>
+      )}
+
+      {/* 13. ABR Player & HD Video Screen */}
+      {iconType === 'player' && (
+        <g transform={`translate(${cx}, ${cy - 10})`}>
+          <rect x="-13" y="-9" width="26" height="18" rx="2.5" fill="#18181b" stroke="#38bdf8" strokeWidth="1.3" />
+          <polygon points="-6,-3 -6,3 0,0" fill="#ef4444" />
+          <rect x="3" y="1" width="2" height="4" fill="#4ade80" />
+          <rect x="6.5" y="-1" width="2" height="6" fill="#4ade80" />
+          <rect x="10" y="-4" width="2" height="9" fill="#4ade80" />
         </g>
       )}
 
       {/* Main Label on Top Face */}
       <text
         x={cx}
-        y={cy + 8}
+        y={cy + 12}
         textAnchor="middle"
-        fontSize="10"
+        fontSize="9.5"
         fontWeight="800"
         fill={textColor}
         fontFamily="inherit"
@@ -187,9 +357,9 @@ const Isometric3DHexBlock: React.FC<IsometricBlockProps> = ({
       {subLabel && (
         <text
           x={cx}
-          y={cy + 18}
+          y={cy + 22}
           textAnchor="middle"
-          fontSize="8"
+          fontSize="7.5"
           fontWeight="600"
           fill={theme === 'light' ? '#52525b' : '#94a3b8'}
           fontFamily="inherit"
@@ -324,11 +494,29 @@ const IsometricClientPlatform: React.FC<{
       <line x1={cx - w * 0.25} y1={cy - h * 0.25} x2={cx + w * 0.25} y2={cy + h * 0.25} stroke={theme === 'light' ? '#e4e4e7' : '#64748b'} strokeWidth="1" />
       <line x1={cx - w * 0.25} y1={cy + h * 0.25} x2={cx + w * 0.25} y2={cy - h * 0.25} stroke={theme === 'light' ? '#e4e4e7' : '#64748b'} strokeWidth="1" />
 
+      {/* 3D Isometric Retina MacBook Laptop on Platform */}
+      <g transform={`translate(${cx - 24}, ${cy - 8})`}>
+        {/* Floor Shadow */}
+        <ellipse cx="0" cy="14" rx="16" ry="4.5" fill="rgba(0,0,0,0.22)" />
+        {/* Base Keyboard Platform */}
+        <polygon points="-16,7 0,15 16,7 0,-1" fill="#e2e8f0" stroke={strokeColor} strokeWidth="1.2" />
+        <polygon points="-12,6 0,12 12,6 0,0" fill="#0f172a" />
+        {/* Trackpad */}
+        <polygon points="-4,9 0,11 4,9 0,7" fill="#cbd5e1" />
+        {/* Tilted Display Lid */}
+        <polygon points="-16,7 -16,-9 0,-17 0,-1" fill="#18181b" stroke={strokeColor} strokeWidth="1.2" />
+        {/* Glowing Screen with Video Player */}
+        <polygon points="-14,5 -14,-7 -2,-13 -2,-1" fill="#0284c7" />
+        {/* Red YouTube Play Badge on Screen */}
+        <rect x="-10" y="-6" width="6" height="4" rx="1" fill="#ef4444" />
+        <polygon points="-8,-5 -8,-3 -5,-4" fill="#ffffff" />
+      </g>
+
       {/* User Pawns standing on the platform */}
       {pawnColors.map((color, i) => {
         const row = Math.floor(i / 4);
         const col = i % 4;
-        const px = cx - 35 + col * 24 + (row % 2) * 8;
+        const px = cx + 8 + col * 12 + (row % 2) * 6;
         const py = cy - 14 + row * 16 - (col % 2) * 4;
 
         return (
@@ -452,7 +640,7 @@ export interface NodeDefinition {
   subLabel?: string;
   badge?: string;
   metric?: string;
-  iconType?: 'server' | 'storage' | 'cpu' | 'cdn' | 'queue' | 'redis' | 'db';
+  iconType?: 'server' | 'storage' | 'cpu' | 'cdn' | 'queue' | 'redis' | 'db' | 'lb' | 'demuxer' | 'checksum' | 'slicer' | 'handler' | 'player';
 }
 
 export interface ConnectionDefinition {
@@ -630,7 +818,7 @@ const SCENARIO_OVERVIEW: SimulationScenario = {
       label: 'Completion Handler',
       subLabel: 'Cập nhật DB & Cache',
       badge: 'Xử lý hậu kỳ',
-      iconType: 'server'
+      iconType: 'handler'
     }
   ],
   connections: [
@@ -865,7 +1053,7 @@ const SCENARIO_DEEP_UPLOAD: SimulationScenario = {
       label: 'Chunk Temp Buffer',
       subLabel: '/tmp/chunks/upload-891',
       badge: 'Nhận 3 luồng đồng thời',
-      iconType: 'storage'
+      iconType: 'slicer'
     },
     {
       id: 'redis-session',
@@ -889,7 +1077,7 @@ const SCENARIO_DEEP_UPLOAD: SimulationScenario = {
       label: 'Checksum Validator',
       subLabel: 'SHA-256 Block Match',
       badge: 'Hash: 0x9f8c... OK',
-      iconType: 'cpu'
+      iconType: 'checksum'
     },
     {
       id: 'merged-storage',
@@ -1091,7 +1279,7 @@ const SCENARIO_DEEP_TRANSCODE: SimulationScenario = {
       label: 'FFmpeg Demuxer',
       subLabel: 'Split Video & Audio',
       badge: 'Tách luồng dữ liệu',
-      iconType: 'cpu'
+      iconType: 'demuxer'
     },
     {
       id: 'encoder-720',
@@ -1139,7 +1327,7 @@ const SCENARIO_DEEP_TRANSCODE: SimulationScenario = {
       label: 'HLS Segmenter',
       subLabel: 'master.m3u8 + .ts',
       badge: '6s GOP boundary',
-      iconType: 'storage'
+      iconType: 'player'
     }
   ],
   connections: [
@@ -1328,7 +1516,7 @@ const SCENARIO_DEEP_CACHE: SimulationScenario = {
       label: 'Load Balancer',
       subLabel: 'Round Robin / NGINX',
       badge: '11.9k req/s',
-      iconType: 'server'
+      iconType: 'lb'
     },
     {
       id: 'api-core',
@@ -1567,7 +1755,7 @@ const SCENARIO_DEEP_COMPLETION: SimulationScenario = {
       label: 'Completion Handler',
       subLabel: 'Event Consumer',
       badge: 'Xử lý hậu kỳ',
-      iconType: 'server'
+      iconType: 'handler'
     },
     {
       id: 'db-writer',
@@ -2031,6 +2219,81 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
     setCurrentStep(1);
   };
 
+  const renderScenarioButtonIcon = (id: ScenarioId, isSelected: boolean) => {
+    const stroke = isSelected ? '#ffffff' : '#18181b';
+    switch (id) {
+      case 'overview':
+        return (
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <rect x="2" y="2" width="28" height="28" rx="8" fill={isSelected ? '#3b82f6' : '#dbeafe'} />
+            <path d="M7 16 C5 16, 5 13, 7 12 C6 9, 10 8, 12 9 C13 7, 18 7, 19 9 C21 8, 24 10, 23 13 C25 14, 24 16, 22 16 Z" fill="#38bdf8" stroke={stroke} strokeWidth="1.2" />
+            <rect x="14" y="19" width="12" height="7" rx="1.5" fill="#22c55e" stroke={stroke} strokeWidth="1.2" />
+            <circle cx="17" cy="22.5" r="1" fill="#ffffff" />
+            <path d="M12 16 L12 22 L14 22" stroke={stroke} strokeWidth="1.4" strokeLinecap="round" />
+          </svg>
+        );
+      case 'deep_upload':
+        return (
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <rect x="2" y="2" width="28" height="28" rx="8" fill={isSelected ? '#ef4444' : '#fee2e2'} />
+            <rect x="6" y="18" width="5" height="7" rx="1" fill="#38bdf8" stroke={stroke} strokeWidth="1" />
+            <rect x="13.5" y="18" width="5" height="7" rx="1" fill="#f59e0b" stroke={stroke} strokeWidth="1" />
+            <rect x="21" y="18" width="5" height="7" rx="1" fill="#22c55e" stroke={stroke} strokeWidth="1" />
+            <path d="M16 14 L16 6 M12 9 L16 5 L20 9" stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        );
+      case 'deep_transcode':
+        return (
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <rect x="2" y="2" width="28" height="28" rx="8" fill={isSelected ? '#eab308' : '#fef9c3'} />
+            <rect x="7" y="7" width="18" height="18" rx="3" fill="#18181b" stroke={stroke} strokeWidth="1.2" />
+            <rect x="10" y="10" width="12" height="12" rx="2" fill="#facc15" />
+            <circle cx="16" cy="16" r="3.5" fill="#18181b" />
+            <polygon points="16,13.5 17,15 18.5,15.5 17.5,16.5 18,18 16,17 14,18 14.5,16.5 13.5,15.5 15,15" fill="#facc15" />
+          </svg>
+        );
+      case 'deep_cache':
+        return (
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <rect x="2" y="2" width="28" height="28" rx="8" fill={isSelected ? '#ef4444' : '#fee2e2'} />
+            <polygon points="16,6 24,12 16,18 8,12" fill="#ef4444" stroke={stroke} strokeWidth="1" />
+            <polygon points="8,12 16,18 16,24 8,18" fill="#b91c1c" stroke={stroke} strokeWidth="1" />
+            <polygon points="16,18 24,12 24,18 16,24" fill="#7f1d1d" stroke={stroke} strokeWidth="1" />
+            <polygon points="16.5,8 13.5,14 16,14 14.5,19 19,13 16.5,13" fill="#facc15" stroke={stroke} strokeWidth="0.8" />
+          </svg>
+        );
+      case 'deep_completion':
+        return (
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <rect x="2" y="2" width="28" height="28" rx="8" fill={isSelected ? '#a855f7' : '#f3e8ff'} />
+            <g transform="translate(4, 2)">
+              <rect x="2" y="6" width="10" height="7" rx="1" fill="#ddd6fe" stroke={stroke} strokeWidth="0.8" />
+              <path d="M2 6 L7 9.5 L12 6" stroke={stroke} strokeWidth="0.8" />
+            </g>
+            <g transform="translate(12, 2)">
+              <rect x="2" y="6" width="10" height="7" rx="1" fill="#ddd6fe" stroke={stroke} strokeWidth="0.8" />
+              <path d="M2 6 L7 9.5 L12 6" stroke={stroke} strokeWidth="0.8" />
+            </g>
+            <g transform="translate(8, 12)">
+              <rect x="0" y="2" width="16" height="10" rx="1.5" fill="#a855f7" stroke={stroke} strokeWidth="1.2" />
+              <polygon points="0,2 8,7 16,2" fill="#f3e8ff" stroke={stroke} strokeWidth="1" />
+            </g>
+          </svg>
+        );
+      case 'deep_streaming':
+        return (
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <rect x="2" y="2" width="28" height="28" rx="8" fill={isSelected ? '#10b981' : '#d1fae5'} />
+            <rect x="6" y="8" width="20" height="14" rx="2.5" fill="#18181b" stroke={stroke} strokeWidth="1.2" />
+            <polygon points="10,12 10,18 15,15" fill="#ef4444" />
+            <rect x="18" y="16" width="1.5" height="3" fill="#4ade80" />
+            <rect x="20.5" y="14" width="1.5" height="5" fill="#4ade80" />
+            <rect x="23" y="11" width="1.5" height="8" fill="#4ade80" />
+          </svg>
+        );
+    }
+  };
+
   return (
     <div style={{ padding: '0.75rem 0 3rem' }}>
       {/* ============================================================
@@ -2137,14 +2400,22 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
                 textAlign: 'left',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
-                boxShadow: isSelected ? '0 4px 12px rgba(0,0,0,0.1)' : 'none'
+                boxShadow: isSelected ? '0 4px 12px rgba(0,0,0,0.1)' : 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
               }}
             >
-              <div style={{ fontSize: '0.68rem', fontWeight: 800, opacity: 0.7, textTransform: 'uppercase' }}>
-                {sc.badgeNumber}
+              <div style={{ flexShrink: 0 }}>
+                {renderScenarioButtonIcon(sc.id, isSelected)}
               </div>
-              <div style={{ fontSize: '0.8rem', fontWeight: 800, marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {sc.menuTitle}
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ fontSize: '0.68rem', fontWeight: 800, opacity: 0.7, textTransform: 'uppercase' }}>
+                  {sc.badgeNumber}
+                </div>
+                <div style={{ fontSize: '0.8rem', fontWeight: 800, marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {sc.menuTitle}
+                </div>
               </div>
             </button>
           );
@@ -2296,6 +2567,48 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               viewBox="0 0 960 480"
               style={{ width: '100%', height: '100%', overflow: 'visible' }}
             >
+              {/* ============================================================
+                  SUPER-VIBRANT 3D ISOMETRIC COLOR GRADIENTS & SHADOW DEFINITIONS
+              ============================================================ */}
+              <defs>
+                <linearGradient id="grad-bucket-green" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#4ade80" />
+                  <stop offset="100%" stopColor="#15803d" />
+                </linearGradient>
+                <linearGradient id="grad-bucket-red" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#f87171" />
+                  <stop offset="100%" stopColor="#b91c1c" />
+                </linearGradient>
+                <linearGradient id="grad-gold-chip" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="#fde047" />
+                  <stop offset="100%" stopColor="#d97706" />
+                </linearGradient>
+                <linearGradient id="grad-cdn-cloud" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#38bdf8" />
+                  <stop offset="100%" stopColor="#1d4ed8" />
+                </linearGradient>
+                <linearGradient id="grad-redis-ruby" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="#f87171" />
+                  <stop offset="100%" stopColor="#991b1b" />
+                </linearGradient>
+                <linearGradient id="grad-lb-blue" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="#60a5fa" />
+                  <stop offset="100%" stopColor="#1e3a8a" />
+                </linearGradient>
+                <linearGradient id="grad-queue-purple" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="#c084fc" />
+                  <stop offset="100%" stopColor="#6b21a8" />
+                </linearGradient>
+                <linearGradient id="grad-handler-violet" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="#a78bfa" />
+                  <stop offset="100%" stopColor="#4c1d95" />
+                </linearGradient>
+                <linearGradient id="grad-demux-prism" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="#f472b6" />
+                  <stop offset="100%" stopColor="#06b6d4" />
+                </linearGradient>
+              </defs>
+
               {/* ============================================================
                   ISOMETRIC CONNECTING PATHWAYS (Black crisp stroke like image)
               ============================================================ */}
