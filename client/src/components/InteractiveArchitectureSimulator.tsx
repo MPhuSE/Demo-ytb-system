@@ -32,9 +32,9 @@ interface IsometricBlockProps {
 const Isometric3DHexBlock: React.FC<IsometricBlockProps> = ({
   cx,
   cy,
-  rx = 54,
-  ry = 30,
-  depth = 22,
+  rx = 58,
+  ry = 32,
+  depth = 18,
   topColor,
   leftColor,
   rightColor,
@@ -121,7 +121,7 @@ const Isometric3DHexBlock: React.FC<IsometricBlockProps> = ({
 
       {/* 1. Storage Canister Bucket (Alex Xu S3 / Storage Style) */}
       {iconType === 'storage' && (
-        <g transform={`translate(${cx}, ${cy - 10})`}>
+        <g transform={`translate(${cx}, ${cy - 12})`}>
           <ellipse cx="0" cy="11" rx="13" ry="3.5" fill="rgba(0,0,0,0.22)" />
           {/* Bucket Body */}
           <path
@@ -165,7 +165,7 @@ const Isometric3DHexBlock: React.FC<IsometricBlockProps> = ({
 
       {/* 2. CPU / GPU Microchip Transcoder with Gold Pins & Gears */}
       {iconType === 'cpu' && (
-        <g transform={`translate(${cx}, ${cy - 10})`}>
+        <g transform={`translate(${cx}, ${cy - 12})`}>
           <rect x="-13" y="-7" width="26" height="24" rx="4" fill="rgba(0,0,0,0.22)" />
           {/* Golden Bus Pins */}
           <line x1="-15" y1="-4" x2="-12" y2="-4" stroke="#f59e0b" strokeWidth="1.6" strokeLinecap="round" />
@@ -187,7 +187,7 @@ const Isometric3DHexBlock: React.FC<IsometricBlockProps> = ({
 
       {/* 3. CDN Edge Cloud with Golden Lightning & Radio Broadcast */}
       {iconType === 'cdn' && (
-        <g transform={`translate(${cx}, ${cy - 10})`}>
+        <g transform={`translate(${cx}, ${cy - 12})`}>
           <ellipse cx="0" cy="11" rx="14" ry="3.5" fill="rgba(0,0,0,0.22)" />
           {/* Radio Waves */}
           <path d="M-16 -2 A8 8 0 0 0 -16 6" fill="none" stroke="#38bdf8" strokeWidth="1.4" strokeLinecap="round" />
@@ -213,7 +213,7 @@ const Isometric3DHexBlock: React.FC<IsometricBlockProps> = ({
 
       {/* 4. Load Balancer 4-Way Diverging Neon Arrows */}
       {iconType === 'lb' && (
-        <g transform={`translate(${cx}, ${cy - 10})`}>
+        <g transform={`translate(${cx}, ${cy - 12})`}>
           <rect x="-12" y="-10" width="24" height="22" rx="5" fill="url(#grad-lb-blue)" stroke={strokeColor} strokeWidth="1.4" />
           <circle cx="0" cy="1" r="2.8" fill="#ffffff" stroke={strokeColor} strokeWidth="1" />
           {/* 4 Diverging Arrows */}
@@ -226,7 +226,7 @@ const Isometric3DHexBlock: React.FC<IsometricBlockProps> = ({
 
       {/* 5. Express API Server Blade Rack */}
       {iconType === 'server' && (
-        <g transform={`translate(${cx}, ${cy - 10})`}>
+        <g transform={`translate(${cx}, ${cy - 12})`}>
           <rect x="-14" y="-11" width="28" height="23" rx="3" fill="#18181b" stroke={strokeColor} strokeWidth="1.4" />
           {/* Unit 1 */}
           <rect x="-11" y="-8.5" width="22" height="4.5" rx="1.2" fill="#334155" />
@@ -248,7 +248,7 @@ const Isometric3DHexBlock: React.FC<IsometricBlockProps> = ({
 
       {/* 6. Triple Mail Envelopes Completion Queue (Alex Xu Style) */}
       {iconType === 'queue' && (
-        <g transform={`translate(${cx}, ${cy - 10})`}>
+        <g transform={`translate(${cx}, ${cy - 12})`}>
           {/* Envelope 1 */}
           <g transform="translate(-7, -4)">
             <rect x="-5" y="-3.5" width="10" height="7" rx="1" fill="#ddd6fe" stroke={strokeColor} strokeWidth="1" />
@@ -270,7 +270,7 @@ const Isometric3DHexBlock: React.FC<IsometricBlockProps> = ({
 
       {/* 7. Redis 3-Tier Ruby In-Memory Cache with Golden Bolt */}
       {iconType === 'redis' && (
-        <g transform={`translate(${cx}, ${cy - 10})`}>
+        <g transform={`translate(${cx}, ${cy - 12})`}>
           <rect x="-12" y="6" width="24" height="5" rx="2" fill="#7f1d1d" stroke={strokeColor} strokeWidth="1.2" />
           <rect x="-13" y="0.5" width="26" height="5" rx="2" fill="#b91c1c" stroke={strokeColor} strokeWidth="1.2" />
           <rect x="-14" y="-5" width="28" height="5" rx="2" fill="url(#grad-redis-ruby)" stroke={strokeColor} strokeWidth="1.2" />
@@ -280,7 +280,7 @@ const Isometric3DHexBlock: React.FC<IsometricBlockProps> = ({
 
       {/* 8. 3-Tier Metallic Cylindrical Database Disks */}
       {iconType === 'db' && (
-        <g transform={`translate(${cx}, ${cy - 10})`}>
+        <g transform={`translate(${cx}, ${cy - 12})`}>
           <ellipse cx="0" cy="8.5" rx="12" ry="3.2" fill="#1e3a8a" stroke={strokeColor} strokeWidth="1.2" />
           <path d="M-12 5 V8.5 C-12 11 12 11 12 8.5 V5" fill="#1e40af" stroke={strokeColor} strokeWidth="1.2" />
           <circle cx="-6.5" cy="7.5" r="1.1" fill="#4ade80" />
@@ -294,7 +294,7 @@ const Isometric3DHexBlock: React.FC<IsometricBlockProps> = ({
 
       {/* 9. Completion Handler Automation Engine */}
       {iconType === 'handler' && (
-        <g transform={`translate(${cx}, ${cy - 10})`}>
+        <g transform={`translate(${cx}, ${cy - 12})`}>
           <rect x="-13" y="-9" width="26" height="21" rx="4" fill="url(#grad-handler-violet)" stroke={strokeColor} strokeWidth="1.4" />
           <circle cx="-3" cy="1.5" r="5" fill="#3b0764" stroke="#c084fc" strokeWidth="1.2" />
           <circle cx="6" cy="-2" r="5" fill="#22c55e" stroke={strokeColor} strokeWidth="1.2" />
@@ -304,7 +304,7 @@ const Isometric3DHexBlock: React.FC<IsometricBlockProps> = ({
 
       {/* 10. Optical Prism Demuxer */}
       {iconType === 'demuxer' && (
-        <g transform={`translate(${cx}, ${cy - 10})`}>
+        <g transform={`translate(${cx}, ${cy - 12})`}>
           <polygon points="0,-10 -11,7 11,7" fill="url(#grad-demux-prism)" stroke={strokeColor} strokeWidth="1.4" />
           <line x1="-15" y1="-1" x2="-3" y2="-1" stroke="#ffffff" strokeWidth="1.8" />
           <line x1="3" y1="-3" x2="14" y2="-7" stroke="#f472b6" strokeWidth="1.8" />
@@ -314,7 +314,7 @@ const Isometric3DHexBlock: React.FC<IsometricBlockProps> = ({
 
       {/* 11. Checksum Security Shield */}
       {iconType === 'checksum' && (
-        <g transform={`translate(${cx}, ${cy - 10})`}>
+        <g transform={`translate(${cx}, ${cy - 12})`}>
           <path d="M0 -11 L10 -7 V1 C10 7 0 11 0 11 C0 11 -10 7 -10 1 V-7 Z" fill="#facc15" stroke={strokeColor} strokeWidth="1.4" />
           <path d="M-4 0 L-1 3 L5 -3" fill="none" stroke="#18181b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
         </g>
@@ -322,7 +322,7 @@ const Isometric3DHexBlock: React.FC<IsometricBlockProps> = ({
 
       {/* 12. Chunk Slicer & Buffer */}
       {iconType === 'slicer' && (
-        <g transform={`translate(${cx}, ${cy - 10})`}>
+        <g transform={`translate(${cx}, ${cy - 12})`}>
           <rect x="-13" y="-5" width="7.5" height="11" rx="1.5" fill="#38bdf8" stroke={strokeColor} strokeWidth="1.2" />
           <rect x="-3.5" y="-5" width="7.5" height="11" rx="1.5" fill="#f59e0b" stroke={strokeColor} strokeWidth="1.2" />
           <rect x="6" y="-5" width="7.5" height="11" rx="1.5" fill="#22c55e" stroke={strokeColor} strokeWidth="1.2" />
@@ -332,7 +332,7 @@ const Isometric3DHexBlock: React.FC<IsometricBlockProps> = ({
 
       {/* 13. ABR Player & HD Video Screen */}
       {iconType === 'player' && (
-        <g transform={`translate(${cx}, ${cy - 10})`}>
+        <g transform={`translate(${cx}, ${cy - 12})`}>
           <rect x="-13" y="-9" width="26" height="18" rx="2.5" fill="#18181b" stroke="#38bdf8" strokeWidth="1.3" />
           <polygon points="-6,-3 -6,3 0,0" fill="#ef4444" />
           <rect x="3" y="1" width="2" height="4" fill="#4ade80" />
@@ -344,9 +344,9 @@ const Isometric3DHexBlock: React.FC<IsometricBlockProps> = ({
       {/* Main Label on Top Face */}
       <text
         x={cx}
-        y={cy + 12}
+        y={cy + 7}
         textAnchor="middle"
-        fontSize="9.5"
+        fontSize="9.2"
         fontWeight="800"
         fill={textColor}
         fontFamily="inherit"
@@ -357,66 +357,47 @@ const Isometric3DHexBlock: React.FC<IsometricBlockProps> = ({
       {subLabel && (
         <text
           x={cx}
-          y={cy + 22}
+          y={cy + 19}
           textAnchor="middle"
           fontSize="7.5"
           fontWeight="600"
-          fill={theme === 'light' ? '#52525b' : '#94a3b8'}
+          fill={theme === 'light' ? '#44403c' : '#94a3b8'}
           fontFamily="inherit"
         >
           {subLabel}
         </text>
       )}
 
-      {/* Floating 3D Badge 1 (Above Node) */}
-      {badge && (
-        <g transform={`translate(${cx}, ${cy - ry - (metric ? 24 : 14)})`}>
+      {/* Floating 3D Pill Badge Above Node (Unified Single Non-Colliding Pill) */}
+      {(badge || metric) && (
+        <g transform={`translate(${cx}, ${cy - ry - 12})`}>
           <rect
-            x="-44"
-            y="-9"
-            width="88"
-            height="18"
-            rx="9"
-            fill={pillBg}
-            stroke={strokeColor}
-            strokeWidth="1.4"
-          />
-          <text
-            x="0"
-            y="3.5"
-            textAnchor="middle"
-            fontSize="8.5"
-            fontWeight="700"
-            fill={textColor}
-          >
-            {badge}
-          </text>
-        </g>
-      )}
-
-      {/* Floating 3D Badge 2 (Metric / Progress) */}
-      {metric && (
-        <g transform={`translate(${cx}, ${cy - ry - 6})`}>
-          <rect
-            x="-38"
-            y="-8"
-            width="76"
-            height="16"
-            rx="8"
+            x={-(Math.max(78, Math.min(142, ((badge && metric ? `${badge} • ${metric}` : badge || metric || '').length * 6.8 + 20))) / 2)}
+            y="-9.5"
+            width={Math.max(78, Math.min(142, ((badge && metric ? `${badge} • ${metric}` : badge || metric || '').length * 6.8 + 20)))}
+            height="19"
+            rx="9.5"
             fill={pillBg}
             stroke={strokeColor}
             strokeWidth="1.3"
           />
-          <circle cx="-26" cy="0" r="2.5" fill="#22c55e" />
+          {metric && (
+            <circle
+              cx={-(Math.max(78, Math.min(142, ((badge && metric ? `${badge} • ${metric}` : badge || metric || '').length * 6.8 + 20))) / 2) + 10}
+              cy="0"
+              r="2.5"
+              fill="#22c55e"
+            />
+          )}
           <text
-            x="3"
-            y="3"
+            x={metric ? "5" : "0"}
+            y="3.5"
             textAnchor="middle"
             fontSize="8"
             fontWeight="700"
             fill={textColor}
           >
-            {metric}
+            {badge && metric ? `${badge} • ${metric}` : badge || metric}
           </text>
         </g>
       )}
@@ -698,96 +679,91 @@ const SCENARIO_OVERVIEW: SimulationScenario = {
     {
       id: 'orig-storage',
       cx: 370,
-      cy: 110,
+      cy: 100,
       topColor: '#fecaca',
       leftColor: '#ef4444',
       rightColor: '#b91c1c',
       label: 'Original Storage',
       subLabel: 'UUID MP4 files',
-      badge: 'Chờ mã hóa',
-      metric: 'Dung lượng gốc',
+      badge: 'Chờ mã hóa • Tệp gốc',
       iconType: 'storage'
     },
     {
       id: 'transcoder',
-      cx: 610,
-      cy: 110,
+      cx: 600,
+      cy: 100,
       topColor: '#fef08a',
       leftColor: '#eab308',
       rightColor: '#a16207',
       label: 'Transcoding Servers',
       subLabel: '360p • 720p HLS',
-      badge: '4 đang chạy',
-      metric: '52% GPU load',
+      badge: '4 đang chạy • 52% GPU',
       iconType: 'cpu'
     },
     {
       id: 'trans-storage',
-      cx: 840,
-      cy: 110,
+      cx: 830,
+      cy: 100,
       topColor: '#bbf7d0',
       leftColor: '#22c55e',
       rightColor: '#15803d',
       label: 'Transcoded Storage',
       subLabel: '.m3u8 & .ts chunks',
-      badge: 'Sẵn sàng CDN',
-      metric: 'HLS Segments',
+      badge: 'Sẵn sàng CDN • HLS',
       iconType: 'storage'
     },
     {
       id: 'cdn',
-      cx: 840,
-      cy: 270,
+      cx: 830,
+      cy: 255,
       topColor: '#bfdbfe',
       leftColor: '#3b82f6',
       rightColor: '#1d4ed8',
       label: 'CDN Edge Cache',
       subLabel: 'SGN-Edge PoP',
-      badge: 'HIT: 98.2%',
-      metric: '148 MB/s stream',
+      badge: 'HIT: 98.2% • 148 MB/s',
       iconType: 'cdn'
     },
     {
       id: 'api',
       cx: 370,
-      cy: 390,
+      cy: 385,
       topColor: '#bae6fd',
       leftColor: '#0ea5e9',
       rightColor: '#0369a1',
       label: 'Express API Server',
       subLabel: 'Port 3001 Node.js',
-      badge: '11.9k RPS (7.8ms)',
-      metric: 'HTTP 202 Async',
+      badge: '11.9k RPS • HTTP 202',
       iconType: 'server'
     },
     {
       id: 'queue',
       cx: 580,
-      cy: 240,
+      cy: 215,
       topColor: '#fed7aa',
       leftColor: '#f97316',
       rightColor: '#c2410c',
       label: 'Transcode Queue',
       subLabel: 'Concurrency = 1',
-      badge: 'Queue: 0 pending',
+      badge: 'Van điều tiết FIFO',
       iconType: 'queue'
     },
     {
       id: 'redis',
       cx: 580,
-      cy: 340,
+      cy: 325,
       topColor: '#fed7aa',
       leftColor: '#ef4444',
       rightColor: '#991b1b',
       label: 'Redis Cache',
       subLabel: 'status:id (38k RPS)',
-      badge: 'HIT: 0.8ms',
+      badge: 'Cache HIT: 0.8ms',
       iconType: 'redis'
     },
     {
       id: 'sqlite',
       cx: 580,
-      cy: 440,
+      cy: 435,
       topColor: '#e2e8f0',
       leftColor: '#64748b',
       rightColor: '#334155',
@@ -799,7 +775,7 @@ const SCENARIO_OVERVIEW: SimulationScenario = {
     {
       id: 'completion-queue',
       cx: 730,
-      cy: 240,
+      cy: 215,
       topColor: '#e9d5ff',
       leftColor: '#a855f7',
       rightColor: '#6b21a8',
@@ -811,7 +787,7 @@ const SCENARIO_OVERVIEW: SimulationScenario = {
     {
       id: 'completion-handler',
       cx: 730,
-      cy: 390,
+      cy: 385,
       topColor: '#ddd6fe',
       leftColor: '#8b5cf6',
       rightColor: '#5b21b6',
@@ -822,20 +798,20 @@ const SCENARIO_OVERVIEW: SimulationScenario = {
     }
   ],
   connections: [
-    { id: 'conn-client-orig', pathD: 'M 180 270 C 240 270, 300 110, 370 110', packetColor: '#ef4444' },
-    { id: 'conn-orig-worker', pathD: 'M 420 110 L 560 110', packetColor: '#f59e0b' },
-    { id: 'conn-worker-transstorage', pathD: 'M 660 110 L 790 110', packetColor: '#22c55e' },
-    { id: 'conn-cdn-transstorage', pathD: 'M 840 140 L 840 240', packetColor: '#3b82f6' },
-    { id: 'conn-client-cdn', pathD: 'M 790 280 C 560 320, 360 290, 190 280', packetColor: '#22c55e' },
-    { id: 'conn-client-api', pathD: 'M 180 320 C 240 340, 290 390, 320 390', packetColor: '#38bdf8' },
-    { id: 'conn-api-queue', pathD: 'M 420 380 C 470 340, 500 240, 530 240', packetColor: '#f59e0b' },
-    { id: 'conn-queue-worker', pathD: 'M 580 210 L 590 140', packetColor: '#f59e0b' },
-    { id: 'conn-api-redis', pathD: 'M 420 390 C 480 365, 510 345, 530 340', packetColor: '#ef4444' },
-    { id: 'conn-api-db', pathD: 'M 420 405 C 480 425, 510 440, 530 440', packetColor: '#64748b' },
-    { id: 'conn-worker-cq', pathD: 'M 650 140 C 680 180, 700 210, 710 220', packetColor: '#a855f7' },
-    { id: 'conn-cq-handler', pathD: 'M 730 270 L 730 360', packetColor: '#a855f7' },
-    { id: 'conn-handler-db', pathD: 'M 680 400 L 630 430', packetColor: '#64748b' },
-    { id: 'conn-handler-redis', pathD: 'M 680 380 L 630 350', packetColor: '#ef4444' }
+    { id: 'conn-client-orig', pathD: 'M 180 270 C 240 270, 300 100, 370 100', packetColor: '#ef4444' },
+    { id: 'conn-orig-worker', pathD: 'M 425 100 L 545 100', packetColor: '#f59e0b' },
+    { id: 'conn-worker-transstorage', pathD: 'M 655 100 L 775 100', packetColor: '#22c55e' },
+    { id: 'conn-cdn-transstorage', pathD: 'M 830 135 L 830 220', packetColor: '#3b82f6' },
+    { id: 'conn-client-cdn', pathD: 'M 775 255 C 560 300, 360 275, 190 275', packetColor: '#22c55e' },
+    { id: 'conn-client-api', pathD: 'M 180 310 C 240 330, 290 385, 315 385', packetColor: '#38bdf8' },
+    { id: 'conn-api-queue', pathD: 'M 425 370 C 470 330, 500 220, 525 215', packetColor: '#f59e0b' },
+    { id: 'conn-queue-worker', pathD: 'M 580 185 L 590 135', packetColor: '#f59e0b' },
+    { id: 'conn-api-redis', pathD: 'M 425 385 C 480 360, 500 330, 525 325', packetColor: '#ef4444' },
+    { id: 'conn-api-db', pathD: 'M 425 395 C 480 415, 500 435, 525 435', packetColor: '#64748b' },
+    { id: 'conn-worker-cq', pathD: 'M 650 130 C 680 160, 700 190, 710 195', packetColor: '#a855f7' },
+    { id: 'conn-cq-handler', pathD: 'M 730 245 L 730 355', packetColor: '#a855f7' },
+    { id: 'conn-handler-db', pathD: 'M 675 395 L 635 425', packetColor: '#64748b' },
+    { id: 'conn-handler-redis', pathD: 'M 675 375 L 635 335', packetColor: '#ef4444' }
   ],
   steps: [
     {
@@ -1539,8 +1515,7 @@ const SCENARIO_DEEP_CACHE: SimulationScenario = {
       rightColor: '#991b1b',
       label: 'Redis Cache Cluster',
       subLabel: 'Key: video:meta:<id>',
-      badge: 'TTL: 3600s',
-      metric: 'HIT: 0.8ms',
+      badge: 'Cache HIT: 0.8ms',
       iconType: 'redis'
     },
     {
@@ -1552,8 +1527,7 @@ const SCENARIO_DEEP_CACHE: SimulationScenario = {
       rightColor: '#334155',
       label: 'SQLite Database',
       subLabel: 'WAL Mode • SSD',
-      badge: 'Bền vững ACID',
-      metric: 'Query: 12.4ms',
+      badge: 'Query: 12.4ms (ACID)',
       iconType: 'db'
     }
   ],
@@ -1987,8 +1961,7 @@ const SCENARIO_DEEP_STREAMING: SimulationScenario = {
       rightColor: '#1d4ed8',
       label: 'CDN Edge PoP (SGN)',
       subLabel: 'Biên mạng TP.HCM • Cache RAM',
-      badge: 'Cache HIT: 98.4%',
-      metric: 'Latency: 3.2ms',
+      badge: 'HIT 98.4% • 3.2ms',
       iconType: 'cdn'
     },
     {
