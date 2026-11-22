@@ -2,8 +2,10 @@
   "name": "mini-youtube-system-design",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Mini YouTube system design MVP based on Alex Xu Chapter 14",
   "scripts": {
+    "stress": "bash scripts/stress_test.sh",
     "benchmark": "bash scripts/benchmark.sh",
     "seed": "npm run seed --prefix server",
     "dev:server": "npm run dev --prefix server",

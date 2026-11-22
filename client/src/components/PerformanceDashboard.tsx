@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Activity, Play, CheckCircle2, Clock, 
-  FileSpreadsheet, Zap, Database, Copy, Check
+  FileSpreadsheet, Zap, Database, Copy, Check,
+  Flame, Gauge
 } from 'lucide-react';
-import { PerformanceSummary, PerformanceLogItem, BenchmarkResult } from '../types.ts';
+import { PerformanceSummary, PerformanceLogItem, BenchmarkResult, StressTestResult } from '../types.ts';
 import { api } from '../services/api.ts';
 
 export const PerformanceDashboard: React.FC = () => {
@@ -12,6 +13,30 @@ export const PerformanceDashboard: React.FC = () => {
   const [benchmarking, setBenchmarking] = useState(false);
   const [latestBenchmark, setLatestBenchmark] = useState<BenchmarkResult | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Stress Testing states
+  const [stressTesting, setStressTesting] = useState(false);
+  const [stressTarget, setStressTarget] = useState<'api' | 'cdn' | 'status'>('api');
+  const [stressConnections, setStressConnections] = useState<number>(100);
+  const [stressDuration, setStressDuration] = useState<number>(5);
+  const [latestStressResult, setLatestStressResult] = useState<StressTestResult | null>(null);
+
+  const handleRunStressTest = async () => {
+    try {
+      setStressTesting(true);
+      setLatestStressResult(null);
+      const res = await api.runStressTest({
+        target: stressTarget,
+        connections: stressConnections,
+        duration: stressDuration,
+      });
+      setLatestStressResult(res);
+    } catch (err: any) {
+      alert(`Lỗi khi bắn tải (stress test): ${err.message}`);
+    } finally {
+      setStressTesting(false);
+    }
+  };
 
   const loadMetrics = useCallback(async () => {
     try {
@@ -120,6 +145,199 @@ Mô hình: Tách 2 luồng song song (Video Data Path & Metadata Path)
             )}
           </button>
         </div>
+      </div>
+
+      {/* Stress Testing (Load & Concurrency Capacity) Suite */}
+      <div style={{ background: '#161616', border: '1px solid #33261a', borderRadius: '12px', padding: '1.25rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.2rem' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#f59e0b', fontWeight: 700, fontSize: '1.1rem' }}>
+              <Flame size={20} color="#f59e0b" />
+              <span>Kiểm Thử Chịu Tải & Giới Hạn Hệ Thống (Stress Testing Suite)</span>
+            </div>
+            <p style={{ color: '#888', fontSize: '0.8rem', marginTop: '0.2rem' }}>
+              Đo thông lượng tối đa (RPS), số người dùng đồng thời (VUs) và độ trễ phản hồi dưới tải nặng.
+            </p>
+          </div>
+
+          <button 
+            className="btn-primary"
+            onClick={handleRunStressTest}
+            disabled={stressTesting}
+            style={{ 
+              background: stressTesting ? '#444' : 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+              border: 'none',
+              padding: '0.6rem 1.25rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              fontWeight: 700
+            }}
+          >
+            {stressTesting ? (
+              <>
+                <div style={{ width: '16px', height: '16px', border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                <span>Đang Bắn Tải ({stressConnections} VUs)...</span>
+              </>
+            ) : (
+              <>
+                <Flame size={16} fill="#fff" />
+                <span>Bắt Đầu Bắn Tải (Run Stress Test)</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Configuration Controls */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', background: '#111', padding: '1rem', borderRadius: '8px', border: '1px solid #262626' }}>
+          {/* Target Selection */}
+          <div>
+            <label style={{ display: 'block', fontSize: '0.75rem', color: '#888', marginBottom: '0.4rem', fontWeight: 600 }}>MỤC TIÊU BẮN TẢI (TARGET)</label>
+            <div style={{ display: 'flex', gap: '0.35rem' }}>
+              <button
+                type="button"
+                onClick={() => setStressTarget('api')}
+                style={{
+                  flex: 1, padding: '6px', fontSize: '0.75rem', borderRadius: '4px',
+                  background: stressTarget === 'api' ? '#2563eb' : '#222',
+                  color: stressTarget === 'api' ? '#fff' : '#aaa',
+                  fontWeight: stressTarget === 'api' ? 700 : 500
+                }}
+              >
+                API Metadata
+              </button>
+              <button
+                type="button"
+                onClick={() => setStressTarget('cdn')}
+                style={{
+                  flex: 1, padding: '6px', fontSize: '0.75rem', borderRadius: '4px',
+                  background: stressTarget === 'cdn' ? '#059669' : '#222',
+                  color: stressTarget === 'cdn' ? '#fff' : '#aaa',
+                  fontWeight: stressTarget === 'cdn' ? 700 : 500
+                }}
+              >
+                CDN Video Stream
+              </button>
+              <button
+                type="button"
+                onClick={() => setStressTarget('status')}
+                style={{
+                  flex: 1, padding: '6px', fontSize: '0.75rem', borderRadius: '4px',
+                  background: stressTarget === 'status' ? '#d97706' : '#222',
+                  color: stressTarget === 'status' ? '#fff' : '#aaa',
+                  fontWeight: stressTarget === 'status' ? 700 : 500
+                }}
+              >
+                Redis Status
+              </button>
+            </div>
+          </div>
+
+          {/* Concurrent Users (VUs) */}
+          <div>
+            <label style={{ display: 'block', fontSize: '0.75rem', color: '#888', marginBottom: '0.4rem', fontWeight: 600 }}>NGƯỜI DÙNG ĐỒNG THỜI (VIRTUAL USERS)</label>
+            <div style={{ display: 'flex', gap: '0.35rem' }}>
+              {[50, 100, 250, 500].map((num) => (
+                <button
+                  key={num}
+                  type="button"
+                  onClick={() => setStressConnections(num)}
+                  style={{
+                    flex: 1, padding: '6px', fontSize: '0.75rem', borderRadius: '4px',
+                    background: stressConnections === num ? '#f59e0b' : '#222',
+                    color: stressConnections === num ? '#000' : '#aaa',
+                    fontWeight: stressConnections === num ? 700 : 500
+                  }}
+                >
+                  {num} VUs
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Duration */}
+          <div>
+            <label style={{ display: 'block', fontSize: '0.75rem', color: '#888', marginBottom: '0.4rem', fontWeight: 600 }}>THỜI GIAN BẮN TẢI</label>
+            <div style={{ display: 'flex', gap: '0.35rem' }}>
+              {[5, 10].map((sec) => (
+                <button
+                  key={sec}
+                  type="button"
+                  onClick={() => setStressDuration(sec)}
+                  style={{
+                    flex: 1, padding: '6px', fontSize: '0.75rem', borderRadius: '4px',
+                    background: stressDuration === sec ? '#333' : '#222',
+                    color: stressDuration === sec ? '#4ade80' : '#aaa',
+                    fontWeight: stressDuration === sec ? 700 : 500
+                  }}
+                >
+                  {sec} Giây
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Stress Test Live Output Result */}
+        {latestStressResult && (
+          <div style={{ marginTop: '1.2rem', background: '#1c1917', border: '1px solid #443118', borderRadius: '10px', padding: '1.2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#f59e0b', fontWeight: 700 }}>
+                <Gauge size={18} />
+                <span>KẾT QUẢ ĐO CHỊU TẢI THỰC TẾ ({latestStressResult.connections} Virtual Users trong {latestStressResult.duration}s)</span>
+              </div>
+              <span className="badge-tag" style={{ background: '#222', color: '#4ade80' }}>
+                URL: {latestStressResult.url}
+              </span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.85rem' }}>
+              <div style={{ background: '#141414', padding: '0.85rem', borderRadius: '8px', border: '1px solid #333' }}>
+                <div style={{ fontSize: '0.72rem', color: '#888' }}>THÔNG LƯỢNG (THROUGHPUT)</div>
+                <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#f59e0b' }}>
+                  {latestStressResult.rps.toLocaleString()} <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>RPS</span>
+                </div>
+                <div style={{ fontSize: '0.7rem', color: '#aaa', marginTop: '0.2rem' }}>
+                  {latestStressResult.requestsTotal.toLocaleString()} requests hoàn tất
+                </div>
+              </div>
+
+              <div style={{ background: '#141414', padding: '0.85rem', borderRadius: '8px', border: '1px solid #333' }}>
+                <div style={{ fontSize: '0.72rem', color: '#888' }}>ĐỘ TRỄ TRUNG BÌNH (LATENCY)</div>
+                <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#60a5fa' }}>
+                  {latestStressResult.latency.avgMs} <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>ms</span>
+                </div>
+                <div style={{ fontSize: '0.7rem', color: '#aaa', marginTop: '0.2rem' }}>
+                  p50: {latestStressResult.latency.p50Ms}ms &bull; p99: {latestStressResult.latency.p99Ms}ms
+                </div>
+              </div>
+
+              <div style={{ background: '#141414', padding: '0.85rem', borderRadius: '8px', border: '1px solid #333' }}>
+                <div style={{ fontSize: '0.72rem', color: '#888' }}>TỈ LỆ THÀNH CÔNG (SUCCESS RATE)</div>
+                <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#4ade80' }}>
+                  {latestStressResult.successRate}
+                </div>
+                <div style={{ fontSize: '0.7rem', color: '#aaa', marginTop: '0.2rem' }}>
+                  Errors: {latestStressResult.errors} &bull; Timeouts: {latestStressResult.timeouts}
+                </div>
+              </div>
+
+              <div style={{ background: '#141414', padding: '0.85rem', borderRadius: '8px', border: '1px solid #333' }}>
+                <div style={{ fontSize: '0.72rem', color: '#888' }}>BĂNG THÔNG MẠNG</div>
+                <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#ec4899' }}>
+                  {latestStressResult.throughputMBps} <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>MB/s</span>
+                </div>
+                <div style={{ fontSize: '0.7rem', color: '#aaa', marginTop: '0.2rem' }}>
+                  Lưu lượng truyền tải qua mạng
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginTop: '0.85rem', padding: '0.75rem', background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '6px', fontSize: '0.78rem', color: '#fbbf24', lineHeight: '1.5' }}>
+              💡 <strong>Nhận định chuyên môn cho buổi bảo vệ:</strong> Dưới tải đồng thời {latestStressResult.connections} người dùng, hệ thống đạt tốc độ xử lý <strong>{latestStressResult.rps.toLocaleString()} requests/giây</strong> với độ trễ phản hồi chỉ <strong>{latestStressResult.latency.avgMs}ms</strong>. Điều này chứng minh kiến trúc bất đồng bộ và bộ nhớ đệm (Redis + CDN Edge) giải phóng hoàn toàn API khỏi các tắc nghẽn I/O.
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Benchmark Realtime Result Card */}

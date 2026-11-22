@@ -56,6 +56,7 @@ export function createVideoRouter(controller: VideoController, storageDir: strin
     res.locals.fixturesDir = path.resolve(storageDir, '..', '..', 'fixtures');
     controller.runBenchmark(_req, res, next);
   });
+  router.post('/admin/stress-test', controller.runStressTest);
 
   return router;
 }

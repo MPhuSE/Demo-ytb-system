@@ -1,7 +1,7 @@
 import { 
   VideoItem, VideoStatusResponse, PlaybackResponse, 
   AdminStats, VideoFileItem, PerformanceSummary, 
-  PerformanceLogItem, BenchmarkResult 
+  PerformanceLogItem, BenchmarkResult, StressTestResult 
 } from '../types.ts';
 
 const API_BASE_URL = 'http://localhost:3001/api/v1';
@@ -124,6 +124,19 @@ export const api = {
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error?.message || 'Failed to run benchmark');
+    }
+    return res.json();
+  },
+
+  async runStressTest(options: { target?: 'api' | 'cdn' | 'status'; connections?: number; duration?: number } = {}): Promise<StressTestResult> {
+    const res = await fetch(`${API_BASE_URL}/admin/stress-test`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(options),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || 'Failed to run stress test');
     }
     return res.json();
   },

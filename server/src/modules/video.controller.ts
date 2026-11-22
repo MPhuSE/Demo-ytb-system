@@ -203,4 +203,14 @@ export class VideoController {
       next(err);
     }
   };
+
+  runStressTest = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const options = req.body || {};
+      const result = await this.service.runStressTest(options);
+      res.status(200).json(result);
+    } catch (err) {
+      next(err);
+    }
+  };
 }

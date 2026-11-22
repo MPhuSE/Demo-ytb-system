@@ -7,6 +7,7 @@ import { TranscodeQueue } from '../transcoding/queue.js';
 import { VideoDTO, VideoEntity } from '../types/index.js';
 import { redisManager } from '../infra/redis.js';
 import { cdnManager } from '../infra/cdn.js';
+import { StressTester, StressTestOptions } from '../infra/stressTester.js';
 
 export class VideoService {
   private queue: TranscodeQueue;
@@ -307,6 +308,11 @@ export class VideoService {
       },
       metric,
     };
+  }
+
+  async runStressTest(options: StressTestOptions = {}) {
+    const port = parseInt(process.env.PORT || '3001', 10);
+    return await StressTester.run(port, options);
   }
 
   private mapToDTO(v: VideoEntity): VideoDTO {

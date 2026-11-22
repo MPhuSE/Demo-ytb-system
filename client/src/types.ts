@@ -103,3 +103,25 @@ export interface BenchmarkResult {
   };
   metric?: PerformanceLogItem;
 }
+
+export interface StressTestResult {
+  target: string;
+  url: string;
+  connections: number;
+  duration: number;
+  rps: number;
+  requestsTotal: number;
+  latency: {
+    avgMs: number;
+    p50Ms: number;
+    p90Ms: number;
+    p99Ms: number;
+    minMs: number;
+    maxMs: number;
+  };
+  throughputMBps: number;
+  errors: number;
+  timeouts: number;
+  non2xx: number;
+  successRate: string;
+}
