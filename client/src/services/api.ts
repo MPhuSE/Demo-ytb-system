@@ -1,4 +1,8 @@
-import { VideoItem, VideoStatusResponse, PlaybackResponse, AdminStats, VideoFileItem } from '../types.ts';
+import { 
+  VideoItem, VideoStatusResponse, PlaybackResponse, 
+  AdminStats, VideoFileItem, PerformanceSummary, 
+  PerformanceLogItem, BenchmarkResult 
+} from '../types.ts';
 
 const API_BASE_URL = 'http://localhost:3001/api/v1';
 
@@ -104,6 +108,23 @@ export const api = {
   async fetchVideoFiles(id: string): Promise<{ videoId: string; files: VideoFileItem[] }> {
     const res = await fetch(`${API_BASE_URL}/admin/videos/${id}/files`);
     if (!res.ok) throw new Error(`Failed to fetch files for video ${id}`);
+    return res.json();
+  },
+
+  async fetchPerformanceMetrics(): Promise<{ summary: PerformanceSummary; logs: PerformanceLogItem[] }> {
+    const res = await fetch(`${API_BASE_URL}/admin/performance`);
+    if (!res.ok) throw new Error('Failed to fetch performance metrics');
+    return res.json();
+  },
+
+  async runBenchmark(): Promise<BenchmarkResult> {
+    const res = await fetch(`${API_BASE_URL}/admin/benchmark`, {
+      method: 'POST',
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || 'Failed to run benchmark');
+    }
     return res.json();
   },
 };

@@ -51,6 +51,11 @@ export function createVideoRouter(controller: VideoController, storageDir: strin
   // Admin and System Inspection routes
   router.get('/admin/stats', controller.getAdminStats);
   router.get('/admin/videos/:id/files', controller.getVideoFiles);
+  router.get('/admin/performance', controller.getPerformanceMetrics);
+  router.post('/admin/benchmark', (_req, res, next) => {
+    res.locals.fixturesDir = path.resolve(storageDir, '..', '..', 'fixtures');
+    controller.runBenchmark(_req, res, next);
+  });
 
   return router;
 }

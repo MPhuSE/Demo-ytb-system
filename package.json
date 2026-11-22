@@ -4,6 +4,7 @@
   "private": true,
   "description": "Mini YouTube system design MVP based on Alex Xu Chapter 14",
   "scripts": {
+    "benchmark": "bash scripts/benchmark.sh",
     "seed": "npm run seed --prefix server",
     "dev:server": "npm run dev --prefix server",
     "dev:client": "npm run dev --prefix client",

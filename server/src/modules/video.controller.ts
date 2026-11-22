@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import path from 'path';
 import { VideoService } from './video.service.js';
 
 export class VideoController {
@@ -180,6 +181,25 @@ export class VideoController {
         });
         return;
       }
+      next(err);
+    }
+  };
+
+  getPerformanceMetrics = (_req: Request, res: Response, next: NextFunction): void => {
+    try {
+      const metrics = this.service.getPerformanceMetrics();
+      res.status(200).json(metrics);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  runBenchmark = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const fixturesDir = (res.locals.fixturesDir as string) || path.resolve(process.cwd(), 'fixtures');
+      const result = await this.service.runBenchmark(fixturesDir);
+      res.status(200).json(result);
+    } catch (err) {
       next(err);
     }
   };

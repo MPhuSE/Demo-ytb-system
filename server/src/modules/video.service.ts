@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import fs from 'fs';
 import { VideoRepository } from './video.repository.js';
+import { PerformanceRepository } from './performance.repository.js';
 import { TranscodeQueue } from '../transcoding/queue.js';
 import { VideoDTO, VideoEntity } from '../types/index.js';
 
@@ -220,6 +221,74 @@ export class VideoService {
       .sort((a, b) => a.name.localeCompare(b.name));
 
     return { videoId: id, files };
+  }
+
+  getPerformanceMetrics() {
+    const summary = PerformanceRepository.getSummary();
+    const logs = PerformanceRepository.findAll();
+    return {
+      summary,
+      logs: logs.slice(0, 30), // Latest 30 records
+    };
+  }
+
+  async runBenchmark(fixturesDir: string): Promise<any> {
+    const fixturePath = path.join(fixturesDir, 'sample_720p.mp4');
+    if (!fs.existsSync(fixturePath)) {
+      throw new Error(`Benchmark fixture ${fixturePath} not found`);
+    }
+
+    const t0 = Date.now();
+    const id = uuidv4();
+    const title = `[Benchmark] Run ${new Date().toLocaleTimeString()}`;
+
+    const originalsDir = path.join(this.storageDir, 'originals');
+    if (!fs.existsSync(originalsDir)) {
+      fs.mkdirSync(originalsDir, { recursive: true });
+    }
+
+    const destOriginal = path.join(originalsDir, `${id}.mp4`);
+    fs.copyFileSync(fixturePath, destOriginal);
+    const tCopied = Date.now();
+    const uploadIngestLatencyMs = tCopied - t0;
+
+    VideoRepository.create({
+      id,
+      title,
+      status: 'QUEUED',
+      original_path: destOriginal,
+    });
+
+    const enqueuedAt = Date.now();
+    this.queue.addJob(id, destOriginal, enqueuedAt);
+
+    // Wait until video is READY or FAILED (poll up to 30s)
+    let tries = 0;
+    while (tries < 60) {
+      await new Promise((r) => setTimeout(r, 500));
+      const v = VideoRepository.findById(id);
+      if (v?.status === 'READY' || v?.status === 'FAILED') {
+        break;
+      }
+      tries++;
+    }
+
+    const updatedVideo = VideoRepository.findById(id);
+    const logs = PerformanceRepository.findAll();
+    const metric = logs.find((m) => m.video_id === id);
+
+    return {
+      videoId: id,
+      title,
+      status: updatedVideo?.status,
+      waterfall: {
+        apiIngestionMs: uploadIngestLatencyMs,
+        queueWaitMs: metric?.queue_wait_ms || 0,
+        transcodeLatencyMs: metric?.transcode_latency_ms || 0,
+        totalTimeToReadyMs: (metric?.total_time_to_ready_ms || 0) + uploadIngestLatencyMs,
+      },
+      metric,
+    };
   }
 
   private mapToDTO(v: VideoEntity): VideoDTO {

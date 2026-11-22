@@ -52,3 +52,41 @@ export interface VideoFileItem {
   type: 'master' | 'playlist' | 'segment';
   updatedAt: string;
 }
+
+export interface PerformanceSummary {
+  totalSamples: number;
+  avgQueueWaitMs: number;
+  avgTranscodeLatencyMs: number;
+  avgTimeToReadyMs: number;
+  avgCompressionRatio: number;
+  avgSpeedFactor: number;
+  totalInputMB: number;
+  totalOutputMB: number;
+}
+
+export interface PerformanceLogItem {
+  id: string;
+  video_id: string;
+  file_size_bytes: number;
+  video_duration_sec: number;
+  queue_wait_ms: number;
+  transcode_latency_ms: number;
+  total_time_to_ready_ms: number;
+  output_size_bytes: number;
+  compression_ratio: number;
+  transcode_speed_factor: number;
+  created_at: string;
+}
+
+export interface BenchmarkResult {
+  videoId: string;
+  title: string;
+  status: string;
+  waterfall: {
+    apiIngestionMs: number;
+    queueWaitMs: number;
+    transcodeLatencyMs: number;
+    totalTimeToReadyMs: number;
+  };
+  metric?: PerformanceLogItem;
+}

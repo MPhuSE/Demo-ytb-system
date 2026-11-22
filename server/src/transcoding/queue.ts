@@ -1,11 +1,14 @@
 import path from 'path';
+import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { VideoRepository } from '../modules/video.repository.js';
+import { PerformanceRepository } from '../modules/performance.repository.js';
 import { Transcoder } from './transcoder.js';
 
 interface TranscodeJob {
   videoId: string;
   originalPath: string;
+  enqueuedAt: number;
 }
 
 export class TranscodeQueue {
@@ -17,8 +20,8 @@ export class TranscodeQueue {
     this.storageDir = storageDir;
   }
 
-  addJob(videoId: string, originalPath: string): void {
-    this.queue.push({ videoId, originalPath });
+  addJob(videoId: string, originalPath: string, enqueuedAt: number = Date.now()): void {
+    this.queue.push({ videoId, originalPath, enqueuedAt });
     console.log(`[Queue] Added job for video ${videoId}. Queue length: ${this.queue.length}`);
     this.processNext();
   }
@@ -37,9 +40,11 @@ export class TranscodeQueue {
 
     this.isProcessing = true;
     const job = this.queue.shift()!;
-    const { videoId, originalPath } = job;
+    const { videoId, originalPath, enqueuedAt } = job;
+    const startedAt = Date.now();
+    const queueWaitMs = startedAt - enqueuedAt;
 
-    console.log(`[Queue] Starting transcoding job for video: ${videoId}`);
+    console.log(`[Queue] Starting transcoding job for video: ${videoId} (Queue wait: ${queueWaitMs}ms)`);
 
     try {
       // 1. Update status to PROCESSING
@@ -76,7 +81,42 @@ export class TranscodeQueue {
 
       // 6. Mark READY
       VideoRepository.updateStatus(videoId, 'READY', 100);
-      console.log(`[Queue] Successfully finished video ${videoId}. Generated ${result.renditions.length} renditions.`);
+      const finishedAt = Date.now();
+      const transcodeLatencyMs = finishedAt - startedAt;
+      const totalTimeToReadyMs = finishedAt - enqueuedAt;
+
+      // 7. Calculate file size & performance metrics
+      let originalSizeBytes = 0;
+      try {
+        originalSizeBytes = fs.statSync(originalPath).size;
+      } catch {}
+
+      let outputSizeBytes = 0;
+      try {
+        const files = fs.readdirSync(outputDir);
+        for (const f of files) {
+          outputSizeBytes += fs.statSync(path.join(outputDir, f)).size;
+        }
+      } catch {}
+
+      const compressionRatio = originalSizeBytes > 0 ? parseFloat((outputSizeBytes / originalSizeBytes).toFixed(2)) : 1.0;
+      const speedFactor = probe.duration > 0 && transcodeLatencyMs > 0
+        ? parseFloat((probe.duration / (transcodeLatencyMs / 1000)).toFixed(2))
+        : 1.0;
+
+      PerformanceRepository.record({
+        video_id: videoId,
+        file_size_bytes: originalSizeBytes,
+        video_duration_sec: probe.duration,
+        queue_wait_ms: queueWaitMs,
+        transcode_latency_ms: transcodeLatencyMs,
+        total_time_to_ready_ms: totalTimeToReadyMs,
+        output_size_bytes: outputSizeBytes,
+        compression_ratio: compressionRatio,
+        transcode_speed_factor: speedFactor,
+      });
+
+      console.log(`[Queue] Successfully finished video ${videoId}. Transcode: ${transcodeLatencyMs}ms, Total Time-to-Ready: ${totalTimeToReadyMs}ms, Speed factor: ${speedFactor}x`);
     } catch (error: any) {
       console.error(`[Queue] Error processing video ${videoId}:`, error);
       VideoRepository.updateStatus(videoId, 'FAILED', 0, {

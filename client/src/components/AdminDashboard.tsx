@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Server, HardDrive, RefreshCw, Trash2, RotateCw, 
-  FileText, Cpu, ArrowLeft, X
+  FileText, Cpu, ArrowLeft, X, Activity, Film
 } from 'lucide-react';
 import { VideoItem, AdminStats, VideoFileItem } from '../types.ts';
 import { api } from '../services/api.ts';
+import { PerformanceDashboard } from './PerformanceDashboard.tsx';
 
 interface AdminDashboardProps {
   onBackToUserView: () => void;
@@ -12,6 +13,7 @@ interface AdminDashboardProps {
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToUserView, onPlayVideo }) => {
+  const [adminTab, setAdminTab] = useState<'management' | 'performance'>('management');
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -107,7 +109,52 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToUserView
         </button>
       </div>
 
-      {/* Metrics Row */}
+      {/* Admin Tabs */}
+      <div style={{ display: 'flex', gap: '0.6rem', marginBottom: '1.5rem', borderBottom: '1px solid #282828', paddingBottom: '0.85rem' }}>
+        <button
+          onClick={() => setAdminTab('management')}
+          style={{
+            padding: '7px 14px',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            borderRadius: '8px',
+            background: adminTab === 'management' ? '#252525' : 'transparent',
+            color: adminTab === 'management' ? '#fff' : '#888',
+            border: adminTab === 'management' ? '1px solid #444' : '1px solid transparent',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+        >
+          <Film size={16} />
+          <span>Quản Lý Video & Hàng Đợi</span>
+        </button>
+
+        <button
+          onClick={() => setAdminTab('performance')}
+          style={{
+            padding: '7px 14px',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            borderRadius: '8px',
+            background: adminTab === 'performance' ? '#172554' : 'transparent',
+            color: adminTab === 'performance' ? '#60a5fa' : '#888',
+            border: adminTab === 'performance' ? '1px solid #2563eb' : '1px solid transparent',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+        >
+          <Activity size={16} />
+          <span>Đo Hiệu Năng & Báo Cáo Hai Luồng</span>
+        </button>
+      </div>
+
+      {adminTab === 'performance' ? (
+        <PerformanceDashboard />
+      ) : (
+        <>
+          {/* Metrics Row */}
       {stats && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
           <div style={{ background: '#181818', border: '1px solid #2a2a2a', borderRadius: '10px', padding: '1.2rem' }}>
@@ -338,6 +385,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToUserView
           </table>
         </div>
       </div>
+      </>
+      )}
 
       {/* Inspect Files Modal */}
       {selectedVideoFiles && (
