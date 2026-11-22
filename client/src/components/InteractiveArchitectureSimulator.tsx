@@ -1,9 +1,193 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Play, Pause, RotateCcw, ArrowRight, ArrowLeft, 
-  CheckCircle2, HardDrive, Cpu, Database, Globe, 
-  Server, Zap, Layers, Activity, Users
+  CheckCircle2, Zap
 } from 'lucide-react';
+
+/* ============================================================
+   CUSTOM 3D/ISOMETRIC SYSTEM DESIGN SVG ICONS
+============================================================ */
+
+const IconClient = () => (
+  <svg width="32" height="32" viewBox="0 0 36 36" fill="none" style={{ margin: '0 auto 0.2rem', display: 'block' }}>
+    <defs>
+      <radialGradient id="client-bg" cx="50%" cy="30%" r="70%">
+        <stop offset="0%" stopColor="#38bdf8" />
+        <stop offset="100%" stopColor="#0369a1" />
+      </radialGradient>
+      <filter id="client-glow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#0284c7" floodOpacity="0.5" />
+      </filter>
+    </defs>
+    <rect x="5" y="6" width="26" height="18" rx="3" fill="#18181b" stroke="#38bdf8" strokeWidth="1.5" />
+    <rect x="7" y="8" width="22" height="14" rx="2" fill="url(#client-bg)" fillOpacity="0.35" />
+    {/* Screen video player symbol */}
+    <polygon points="16,12 16,18 22,15" fill="#38bdf8" />
+    {/* Stand */}
+    <path d="M14 24L12 29H24L22 24" fill="#334155" stroke="#38bdf8" strokeWidth="1.2" />
+    <ellipse cx="18" cy="29" rx="8" ry="2" fill="#0f172a" stroke="#38bdf8" strokeWidth="1" />
+    {/* Online user beacon */}
+    <circle cx="28" cy="7" r="2.5" fill="#4ade80" />
+  </svg>
+);
+
+const IconOriginalStorage = () => (
+  <svg width="32" height="32" viewBox="0 0 36 36" fill="none" style={{ margin: '0 auto 0.2rem', display: 'block' }}>
+    <defs>
+      <linearGradient id="orig-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#f87171" />
+        <stop offset="100%" stopColor="#991b1b" />
+      </linearGradient>
+    </defs>
+    {/* Top Rim */}
+    <ellipse cx="18" cy="9" rx="12" ry="4" fill="#fca5a5" fillOpacity="0.45" stroke="#ef4444" strokeWidth="1.5" />
+    {/* Bucket Body */}
+    <path d="M6 9V22C6 24.5 11.4 26.5 18 26.5C24.6 26.5 30 24.5 30 22V9" fill="url(#orig-grad)" fillOpacity="0.85" stroke="#ef4444" strokeWidth="1.5" />
+    {/* Mid Ring */}
+    <path d="M6 15.5C6 17.5 11.4 19.5 18 19.5C24.6 19.5 30 17.5 30 15.5" stroke="#fecaca" strokeWidth="1" strokeDasharray="2 2" />
+    {/* Video Tape Slate */}
+    <rect x="13" y="14" width="10" height="7" rx="1.5" fill="#18181b" stroke="#fca5a5" strokeWidth="1" />
+    <polygon points="16.5,16 16.5,19 20,17.5" fill="#ef4444" />
+  </svg>
+);
+
+const IconTranscoder = () => (
+  <svg width="32" height="32" viewBox="0 0 36 36" fill="none" style={{ margin: '0 auto 0.2rem', display: 'block' }}>
+    <defs>
+      <linearGradient id="gpu-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#b45309" />
+      </linearGradient>
+    </defs>
+    {/* Silicon Substrate */}
+    <rect x="6" y="6" width="24" height="24" rx="4" fill="url(#gpu-grad)" stroke="#fcd34d" strokeWidth="1.5" />
+    {/* Die Heat Spreader */}
+    <rect x="10.5" y="10.5" width="15" height="15" rx="2" fill="#171717" stroke="#fbbf24" strokeWidth="1.2" />
+    {/* Circuit traces */}
+    <path d="M14 10.5V14H10.5M22 10.5V14H25.5M10.5 22H14V25.5M25.5 22H22V25.5" stroke="#f59e0b" strokeWidth="0.8" />
+    {/* Dual Gear Transcode Core */}
+    <circle cx="18" cy="18" r="4.5" fill="#f59e0b" fillOpacity="0.25" stroke="#fbbf24" strokeWidth="1.2" />
+    <polygon points="18,14.5 19,16.5 21,17 19.5,18.5 20,21 18,19.5 16,21 16.5,18.5 15,17 17,16.5" fill="#fbbf24" />
+  </svg>
+);
+
+const IconTranscodedStorage = () => (
+  <svg width="32" height="32" viewBox="0 0 36 36" fill="none" style={{ margin: '0 auto 0.2rem', display: 'block' }}>
+    <defs>
+      <linearGradient id="ts-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#10b981" />
+        <stop offset="100%" stopColor="#047857" />
+      </linearGradient>
+    </defs>
+    {/* Disc 3 (Bottom) */}
+    <path d="M7 22C7 24 11.9 25.5 18 25.5C24.1 25.5 29 24 29 22V24C29 26 24.1 27.5 18 27.5C11.9 27.5 7 26 7 24V22Z" fill="#065f46" stroke="#34d399" strokeWidth="1" />
+    {/* Disc 2 (Middle) */}
+    <path d="M7 16C7 18 11.9 19.5 18 19.5C24.1 19.5 29 18 29 16V18C29 20 24.1 21.5 18 21.5C11.9 21.5 7 20 7 18V16Z" fill="url(#ts-grad)" stroke="#34d399" strokeWidth="1" />
+    {/* Disc 1 (Top) */}
+    <ellipse cx="18" cy="10" rx="11" ry="4" fill="#a7f3d0" fillOpacity="0.4" stroke="#34d399" strokeWidth="1.5" />
+    <path d="M7 10V12C7 14 11.9 15.5 18 15.5C24.1 15.5 29 14 29 12V10" stroke="#34d399" strokeWidth="1.5" />
+    {/* Multi-profile segments */}
+    <circle cx="13" cy="10" r="1.5" fill="#34d399" />
+    <circle cx="18" cy="10" r="1.5" fill="#6ee7b7" />
+    <circle cx="23" cy="10" r="1.5" fill="#a7f3d0" />
+  </svg>
+);
+
+const IconCDN = () => (
+  <svg width="32" height="32" viewBox="0 0 36 36" fill="none" style={{ margin: '0 auto 0.2rem', display: 'block' }}>
+    <defs>
+      <radialGradient id="cdn-globe" cx="40%" cy="40%" r="65%">
+        <stop offset="0%" stopColor="#2dd4bf" />
+        <stop offset="100%" stopColor="#0f766e" />
+      </radialGradient>
+    </defs>
+    {/* Globe Base */}
+    <circle cx="18" cy="18" r="12" fill="url(#cdn-globe)" stroke="#5eead4" strokeWidth="1.5" />
+    {/* Latitude & Longitude curves */}
+    <ellipse cx="18" cy="18" rx="6" ry="12" stroke="rgba(255,255,255,0.4)" strokeWidth="1" />
+    <line x1="6" y1="18" x2="30" y2="18" stroke="rgba(255,255,255,0.4)" strokeWidth="1" />
+    {/* Orbital Edge Rings */}
+    <ellipse cx="18" cy="18" rx="15" ry="5.5" stroke="#2dd4bf" strokeWidth="1.5" strokeDasharray="3 3" transform="rotate(-28 18 18)" />
+    {/* Edge Pin Marker */}
+    <circle cx="22" cy="13" r="2.5" fill="#facc15" stroke="#fff" strokeWidth="1" />
+  </svg>
+);
+
+const IconAPIGateway = () => (
+  <svg width="32" height="32" viewBox="0 0 36 36" fill="none" style={{ margin: '0 auto 0.2rem', display: 'block' }}>
+    <defs>
+      <linearGradient id="srv-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stopColor="#1e293b" />
+        <stop offset="100%" stopColor="#0f172a" />
+      </linearGradient>
+    </defs>
+    {/* Server Blade 1 (Upper) */}
+    <rect x="5.5" y="7" width="25" height="9.5" rx="2.5" fill="url(#srv-grad)" stroke="#38bdf8" strokeWidth="1.5" />
+    <circle cx="9.5" cy="11.75" r="1.5" fill="#4ade80" />
+    <circle cx="14" cy="11.75" r="1.5" fill="#38bdf8" />
+    <line x1="18" y1="11.75" x2="27" y2="11.75" stroke="#475569" strokeWidth="2" strokeLinecap="round" />
+    {/* Server Blade 2 (Lower) */}
+    <rect x="5.5" y="19" width="25" height="9.5" rx="2.5" fill="url(#srv-grad)" stroke="#38bdf8" strokeWidth="1.5" />
+    <circle cx="9.5" cy="23.75" r="1.5" fill="#4ade80" />
+    <circle cx="14" cy="23.75" r="1.5" fill="#38bdf8" />
+    <line x1="18" y1="23.75" x2="27" y2="23.75" stroke="#475569" strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
+
+const IconQueue = () => (
+  <svg width="32" height="32" viewBox="0 0 36 36" fill="none" style={{ margin: '0 auto 0.2rem', display: 'block' }}>
+    <defs>
+      <linearGradient id="q-box" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stopColor="#d97706" />
+        <stop offset="100%" stopColor="#92400e" />
+      </linearGradient>
+    </defs>
+    {/* Conveyer / Pipeline Channel */}
+    <rect x="4" y="11" width="28" height="14" rx="3.5" fill="#1c1917" stroke="#f59e0b" strokeWidth="1.5" />
+    {/* Moving Queue Job Blocks */}
+    <rect x="7" y="14" width="6" height="8" rx="1.5" fill="#fde047" stroke="#d97706" strokeWidth="0.8" />
+    <rect x="15" y="14" width="6" height="8" rx="1.5" fill="#facc15" stroke="#d97706" strokeWidth="0.8" />
+    <rect x="23" y="14" width="6" height="8" rx="1.5" fill="#f59e0b" stroke="#b45309" strokeWidth="0.8" />
+    {/* Arrow */}
+    <path d="M26 8L30 18L26 28" stroke="#fef08a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const IconRedis = () => (
+  <svg width="32" height="32" viewBox="0 0 36 36" fill="none" style={{ margin: '0 auto 0.2rem', display: 'block' }}>
+    <defs>
+      <linearGradient id="redis-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#ef4444" />
+        <stop offset="100%" stopColor="#b91c1c" />
+      </linearGradient>
+    </defs>
+    {/* Isometric Hexagon Diamond Plate */}
+    <polygon points="18,4 31,11 31,25 18,32 5,25 5,11" fill="url(#redis-grad)" stroke="#f87171" strokeWidth="1.5" />
+    <polygon points="18,8 27,13 27,23 18,28 9,23 9,13" fill="#18181b" stroke="#fca5a5" strokeWidth="1" />
+    {/* High Speed In-Memory Lightning */}
+    <path d="M19.5 11L13 19.5H18.5L16.5 25L23 16.5H17.5L19.5 11Z" fill="#facc15" stroke="#eab308" strokeWidth="0.8" />
+  </svg>
+);
+
+const IconSQLite = () => (
+  <svg width="32" height="32" viewBox="0 0 36 36" fill="none" style={{ margin: '0 auto 0.2rem', display: 'block' }}>
+    <defs>
+      <linearGradient id="db-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#1d4ed8" />
+      </linearGradient>
+    </defs>
+    {/* Top Ellipse */}
+    <ellipse cx="18" cy="9" rx="11" ry="4" fill="#93c5fd" fillOpacity="0.45" stroke="#60a5fa" strokeWidth="1.5" />
+    {/* Tier 1 */}
+    <path d="M7 9V15C7 17.2 11.9 19 18 19C24.1 19 29 17.2 29 15V9" fill="url(#db-grad)" stroke="#60a5fa" strokeWidth="1.5" />
+    {/* Tier 2 */}
+    <path d="M7 15V21C7 23.2 11.9 25 18 25C24.1 25 29 23.2 29 21V15" fill="url(#db-grad)" stroke="#60a5fa" strokeWidth="1.5" />
+    {/* WAL Journal indicator LED */}
+    <circle cx="24" cy="12.5" r="1.5" fill="#4ade80" />
+    <circle cx="24" cy="18.5" r="1.5" fill="#60a5fa" />
+  </svg>
+);
 
 interface StepDetail {
   id: number;
@@ -446,21 +630,24 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               minWidth: '95px',
               padding: '0.65rem 0.4rem',
               boxSizing: 'border-box',
-              background: stepData.activeNodes.includes('client') ? '#1e293b' : '#181818',
-              border: `2px solid ${stepData.activeNodes.includes('client') ? '#3ea6ff' : '#333'}`,
-              borderRadius: '10px',
-              boxShadow: stepData.activeNodes.includes('client') ? '0 0 16px rgba(62, 166, 255, 0.4)' : 'none',
+              background: stepData.activeNodes.includes('client') 
+                ? 'linear-gradient(145deg, #1e293b 0%, #0f172a 100%)' 
+                : 'linear-gradient(145deg, #18191f 0%, #111215 100%)',
+              border: `2px solid ${stepData.activeNodes.includes('client') ? '#38bdf8' : '#333'}`,
+              borderRadius: '12px',
+              boxShadow: stepData.activeNodes.includes('client') 
+                ? '0 0 20px rgba(56, 189, 248, 0.45), inset 0 1px 0 rgba(255,255,255,0.2)' 
+                : '0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)',
               textAlign: 'center',
               transition: 'all 0.3s ease',
             }}>
-              <div style={{ margin: '0 auto 0.25rem', width: '30px', height: '30px', borderRadius: '50%', background: '#ff0000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Users size={15} color="#fff" />
-              </div>
+              <span style={{ position: 'absolute', top: '7px', right: '7px', width: '6px', height: '6px', borderRadius: '50%', background: '#38bdf8', boxShadow: '0 0 6px #38bdf8' }} />
+              <IconClient />
               <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>User / Client</div>
-              <div style={{ fontSize: '0.62rem', color: '#aaa', marginTop: '2px', whiteSpace: 'nowrap' }}>Upload & Watch</div>
+              <div style={{ fontSize: '0.62rem', color: '#94a3b8', marginTop: '1px', whiteSpace: 'nowrap' }}>Upload & Watch</div>
               {stepData.activeNodes.includes('client') && (
-                <div style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: '#3ea6ff', color: '#000', fontSize: '0.58rem', fontWeight: 800, padding: '1px 5px', borderRadius: '8px', whiteSpace: 'nowrap' }}>
-                  ACTIVE
+                <div style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: '#38bdf8', color: '#000', fontSize: '0.58rem', fontWeight: 800, padding: '1px 6px', borderRadius: '8px', whiteSpace: 'nowrap', boxShadow: '0 2px 8px rgba(0,0,0,0.6)' }}>
+                  ACTIVE CLIENT
                 </div>
               )}
             </div>
@@ -474,18 +661,23 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               minWidth: '105px',
               padding: '0.6rem 0.4rem',
               boxSizing: 'border-box',
-              background: stepData.activeNodes.includes('orig-storage') ? '#261b1b' : '#181818',
-              border: `2px solid ${stepData.activeNodes.includes('orig-storage') ? '#f87171' : '#333'}`,
-              borderRadius: '10px',
-              boxShadow: stepData.activeNodes.includes('orig-storage') ? '0 0 16px rgba(248, 113, 113, 0.4)' : 'none',
+              background: stepData.activeNodes.includes('orig-storage') 
+                ? 'linear-gradient(145deg, #361717 0%, #1a0b0b 100%)' 
+                : 'linear-gradient(145deg, #18191f 0%, #111215 100%)',
+              border: `2px solid ${stepData.activeNodes.includes('orig-storage') ? '#ef4444' : '#333'}`,
+              borderRadius: '12px',
+              boxShadow: stepData.activeNodes.includes('orig-storage') 
+                ? '0 0 20px rgba(239, 68, 68, 0.45), inset 0 1px 0 rgba(255,255,255,0.2)' 
+                : '0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)',
               textAlign: 'center',
               transition: 'all 0.3s ease',
             }}>
-              <HardDrive size={20} color="#f87171" style={{ margin: '0 auto 0.2rem' }} />
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f87171', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Original Storage</div>
-              <div style={{ fontSize: '0.62rem', color: '#888', whiteSpace: 'nowrap' }}>UUID MP4 files</div>
+              <span style={{ position: 'absolute', top: '7px', right: '7px', width: '6px', height: '6px', borderRadius: '50%', background: '#ef4444', boxShadow: '0 0 6px #ef4444' }} />
+              <IconOriginalStorage />
+              <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#f87171', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Original Storage</div>
+              <div style={{ fontSize: '0.62rem', color: '#888', whiteSpace: 'nowrap' }}>Raw MP4 Files</div>
               {stepData.activeNodes.includes('orig-storage') && (
-                <div style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: '#f87171', color: '#fff', fontSize: '0.58rem', fontWeight: 800, padding: '1px 5px', borderRadius: '8px' }}>
+                <div style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: '#ef4444', color: '#fff', fontSize: '0.58rem', fontWeight: 800, padding: '1px 6px', borderRadius: '8px', whiteSpace: 'nowrap', boxShadow: '0 2px 8px rgba(0,0,0,0.6)' }}>
                   RECEIVING
                 </div>
               )}
@@ -500,19 +692,24 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               minWidth: '110px',
               padding: '0.6rem 0.4rem',
               boxSizing: 'border-box',
-              background: stepData.activeNodes.includes('transcoder') ? '#2b2114' : '#181818',
+              background: stepData.activeNodes.includes('transcoder') 
+                ? 'linear-gradient(145deg, #36240d 0%, #1c1206 100%)' 
+                : 'linear-gradient(145deg, #18191f 0%, #111215 100%)',
               border: `2px solid ${stepData.activeNodes.includes('transcoder') ? '#f59e0b' : '#333'}`,
-              borderRadius: '10px',
-              boxShadow: stepData.activeNodes.includes('transcoder') ? '0 0 16px rgba(245, 158, 11, 0.4)' : 'none',
+              borderRadius: '12px',
+              boxShadow: stepData.activeNodes.includes('transcoder') 
+                ? '0 0 20px rgba(245, 158, 11, 0.45), inset 0 1px 0 rgba(255,255,255,0.2)' 
+                : '0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)',
               textAlign: 'center',
               transition: 'all 0.3s ease',
             }}>
-              <Cpu size={20} color="#f59e0b" style={{ margin: '0 auto 0.2rem' }} />
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f59e0b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>FFmpeg Worker</div>
+              <span style={{ position: 'absolute', top: '7px', right: '7px', width: '6px', height: '6px', borderRadius: '50%', background: '#f59e0b', boxShadow: '0 0 6px #f59e0b' }} />
+              <IconTranscoder />
+              <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#f59e0b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>FFmpeg Transcoder</div>
               <div style={{ fontSize: '0.62rem', color: '#888', whiteSpace: 'nowrap' }}>360p &bull; 720p HLS</div>
               {stepData.activeNodes.includes('transcoder') && (
-                <div style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: '#f59e0b', color: '#000', fontSize: '0.58rem', fontWeight: 800, padding: '1px 5px', borderRadius: '8px', whiteSpace: 'nowrap' }}>
-                  8.96x ENCODE
+                <div style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: '#f59e0b', color: '#000', fontSize: '0.58rem', fontWeight: 800, padding: '1px 6px', borderRadius: '8px', whiteSpace: 'nowrap', boxShadow: '0 2px 8px rgba(0,0,0,0.6)' }}>
+                  8.96x SPEED
                 </div>
               )}
             </div>
@@ -526,16 +723,26 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               minWidth: '110px',
               padding: '0.6rem 0.4rem',
               boxSizing: 'border-box',
-              background: stepData.activeNodes.includes('trans-storage') ? '#1c261e' : '#181818',
-              border: `2px solid ${stepData.activeNodes.includes('trans-storage') ? '#4ade80' : '#333'}`,
-              borderRadius: '10px',
-              boxShadow: stepData.activeNodes.includes('trans-storage') ? '0 0 16px rgba(74, 222, 128, 0.4)' : 'none',
+              background: stepData.activeNodes.includes('trans-storage') 
+                ? 'linear-gradient(145deg, #103322 0%, #081a11 100%)' 
+                : 'linear-gradient(145deg, #18191f 0%, #111215 100%)',
+              border: `2px solid ${stepData.activeNodes.includes('trans-storage') ? '#10b981' : '#333'}`,
+              borderRadius: '12px',
+              boxShadow: stepData.activeNodes.includes('trans-storage') 
+                ? '0 0 20px rgba(16, 185, 129, 0.45), inset 0 1px 0 rgba(255,255,255,0.2)' 
+                : '0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)',
               textAlign: 'center',
               transition: 'all 0.3s ease',
             }}>
-              <Layers size={20} color="#4ade80" style={{ margin: '0 auto 0.2rem' }} />
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#4ade80', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Transcoded Storage</div>
-              <div style={{ fontSize: '0.62rem', color: '#888', whiteSpace: 'nowrap' }}>.m3u8 & .ts chunks</div>
+              <span style={{ position: 'absolute', top: '7px', right: '7px', width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 6px #10b981' }} />
+              <IconTranscodedStorage />
+              <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#34d399', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Transcoded Storage</div>
+              <div style={{ fontSize: '0.62rem', color: '#888', whiteSpace: 'nowrap' }}>.m3u8 & .ts Chunks</div>
+              {stepData.activeNodes.includes('trans-storage') && (
+                <div style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: '#10b981', color: '#000', fontSize: '0.58rem', fontWeight: 800, padding: '1px 6px', borderRadius: '8px', whiteSpace: 'nowrap', boxShadow: '0 2px 8px rgba(0,0,0,0.6)' }}>
+                  HLS READY
+                </div>
+              )}
             </div>
 
             {/* NODE 5: CDN Edge Node (Column 4: left 75%, width 22% -> ends at 97%!) */}
@@ -547,18 +754,23 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               minWidth: '110px',
               padding: '0.6rem 0.4rem',
               boxSizing: 'border-box',
-              background: stepData.activeNodes.includes('cdn') ? '#162828' : '#181818',
+              background: stepData.activeNodes.includes('cdn') 
+                ? 'linear-gradient(145deg, #133333 0%, #091a1a 100%)' 
+                : 'linear-gradient(145deg, #18191f 0%, #111215 100%)',
               border: `2px solid ${stepData.activeNodes.includes('cdn') ? '#2dd4bf' : '#333'}`,
-              borderRadius: '10px',
-              boxShadow: stepData.activeNodes.includes('cdn') ? '0 0 16px rgba(45, 212, 191, 0.4)' : 'none',
+              borderRadius: '12px',
+              boxShadow: stepData.activeNodes.includes('cdn') 
+                ? '0 0 20px rgba(45, 212, 191, 0.45), inset 0 1px 0 rgba(255,255,255,0.2)' 
+                : '0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)',
               textAlign: 'center',
               transition: 'all 0.3s ease',
             }}>
-              <Globe size={20} color="#2dd4bf" style={{ margin: '0 auto 0.2rem' }} />
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#2dd4bf', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>CDN Edge Cache</div>
+              <span style={{ position: 'absolute', top: '7px', right: '7px', width: '6px', height: '6px', borderRadius: '50%', background: '#2dd4bf', boxShadow: '0 0 6px #2dd4bf' }} />
+              <IconCDN />
+              <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#2dd4bf', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>CDN Edge Cache</div>
               <div style={{ fontSize: '0.62rem', color: '#888', whiteSpace: 'nowrap' }}>SGN-Edge-01</div>
               {stepData.activeNodes.includes('cdn') && (
-                <div style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: '#2dd4bf', color: '#000', fontSize: '0.58rem', fontWeight: 800, padding: '1px 5px', borderRadius: '8px', whiteSpace: 'nowrap' }}>
+                <div style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: '#2dd4bf', color: '#000', fontSize: '0.58rem', fontWeight: 800, padding: '1px 6px', borderRadius: '8px', whiteSpace: 'nowrap', boxShadow: '0 2px 8px rgba(0,0,0,0.6)' }}>
                   HIT (148MB/s)
                 </div>
               )}
@@ -573,18 +785,23 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               minWidth: '105px',
               padding: '0.6rem 0.4rem',
               boxSizing: 'border-box',
-              background: stepData.activeNodes.includes('api-server') ? '#1e283b' : '#181818',
-              border: `2px solid ${stepData.activeNodes.includes('api-server') ? '#3ea6ff' : '#333'}`,
-              borderRadius: '10px',
-              boxShadow: stepData.activeNodes.includes('api-server') ? '0 0 16px rgba(62, 166, 255, 0.4)' : 'none',
+              background: stepData.activeNodes.includes('api-server') 
+                ? 'linear-gradient(145deg, #1e293b 0%, #0f172a 100%)' 
+                : 'linear-gradient(145deg, #18191f 0%, #111215 100%)',
+              border: `2px solid ${stepData.activeNodes.includes('api-server') ? '#38bdf8' : '#333'}`,
+              borderRadius: '12px',
+              boxShadow: stepData.activeNodes.includes('api-server') 
+                ? '0 0 20px rgba(56, 189, 248, 0.45), inset 0 1px 0 rgba(255,255,255,0.2)' 
+                : '0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)',
               textAlign: 'center',
               transition: 'all 0.3s ease',
             }}>
-              <Server size={20} color="#3ea6ff" style={{ margin: '0 auto 0.2rem' }} />
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#3ea6ff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Express API</div>
+              <span style={{ position: 'absolute', top: '7px', right: '7px', width: '6px', height: '6px', borderRadius: '50%', background: '#38bdf8', boxShadow: '0 0 6px #38bdf8' }} />
+              <IconAPIGateway />
+              <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#38bdf8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Express API</div>
               <div style={{ fontSize: '0.62rem', color: '#888', whiteSpace: 'nowrap' }}>Port 3001</div>
               {stepData.activeNodes.includes('api-server') && (
-                <div style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: '#3ea6ff', color: '#000', fontSize: '0.58rem', fontWeight: 800, padding: '1px 5px', borderRadius: '8px', whiteSpace: 'nowrap' }}>
+                <div style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: '#38bdf8', color: '#000', fontSize: '0.58rem', fontWeight: 800, padding: '1px 6px', borderRadius: '8px', whiteSpace: 'nowrap', boxShadow: '0 2px 8px rgba(0,0,0,0.6)' }}>
                   11.9k RPS
                 </div>
               )}
@@ -599,15 +816,20 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               minWidth: '110px',
               padding: '0.5rem 0.4rem',
               boxSizing: 'border-box',
-              background: stepData.activeNodes.includes('queue') ? '#262016' : '#181818',
-              border: `2px solid ${stepData.activeNodes.includes('queue') ? '#facc15' : '#333'}`,
-              borderRadius: '10px',
-              boxShadow: stepData.activeNodes.includes('queue') ? '0 0 16px rgba(250, 204, 21, 0.4)' : 'none',
+              background: stepData.activeNodes.includes('queue') 
+                ? 'linear-gradient(145deg, #33230d 0%, #1a1106 100%)' 
+                : 'linear-gradient(145deg, #18191f 0%, #111215 100%)',
+              border: `2px solid ${stepData.activeNodes.includes('queue') ? '#f59e0b' : '#333'}`,
+              borderRadius: '12px',
+              boxShadow: stepData.activeNodes.includes('queue') 
+                ? '0 0 20px rgba(245, 158, 11, 0.45), inset 0 1px 0 rgba(255,255,255,0.2)' 
+                : '0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)',
               textAlign: 'center',
               transition: 'all 0.3s ease',
             }}>
-              <Activity size={16} color="#facc15" style={{ margin: '0 auto 0.2rem' }} />
-              <div style={{ fontSize: '0.73rem', fontWeight: 700, color: '#facc15', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Transcode Queue</div>
+              <span style={{ position: 'absolute', top: '6px', right: '6px', width: '5px', height: '5px', borderRadius: '50%', background: '#f59e0b', boxShadow: '0 0 6px #f59e0b' }} />
+              <IconQueue />
+              <div style={{ fontSize: '0.74rem', fontWeight: 700, color: '#facc15', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Transcode Queue</div>
               <div style={{ fontSize: '0.6rem', color: '#888', whiteSpace: 'nowrap' }}>Concurrency = 1</div>
             </div>
 
@@ -620,16 +842,21 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               minWidth: '110px',
               padding: '0.5rem 0.4rem',
               boxSizing: 'border-box',
-              background: stepData.activeNodes.includes('redis') ? '#2b2114' : '#181818',
-              border: `2px solid ${stepData.activeNodes.includes('redis') ? '#facc15' : '#333'}`,
-              borderRadius: '10px',
-              boxShadow: stepData.activeNodes.includes('redis') ? '0 0 16px rgba(250, 204, 21, 0.4)' : 'none',
+              background: stepData.activeNodes.includes('redis') 
+                ? 'linear-gradient(145deg, #361717 0%, #1a0b0b 100%)' 
+                : 'linear-gradient(145deg, #18191f 0%, #111215 100%)',
+              border: `2px solid ${stepData.activeNodes.includes('redis') ? '#ef4444' : '#333'}`,
+              borderRadius: '12px',
+              boxShadow: stepData.activeNodes.includes('redis') 
+                ? '0 0 20px rgba(239, 68, 68, 0.45), inset 0 1px 0 rgba(255,255,255,0.2)' 
+                : '0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)',
               textAlign: 'center',
               transition: 'all 0.3s ease',
             }}>
-              <Database size={16} color="#facc15" style={{ margin: '0 auto 0.2rem' }} />
-              <div style={{ fontSize: '0.73rem', fontWeight: 700, color: '#facc15', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Redis Cache</div>
-              <div style={{ fontSize: '0.6rem', color: '#888', whiteSpace: 'nowrap' }}>status:id (38k RPS)</div>
+              <span style={{ position: 'absolute', top: '6px', right: '6px', width: '5px', height: '5px', borderRadius: '50%', background: '#ef4444', boxShadow: '0 0 6px #ef4444' }} />
+              <IconRedis />
+              <div style={{ fontSize: '0.74rem', fontWeight: 700, color: '#f87171', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Redis Cache</div>
+              <div style={{ fontSize: '0.6rem', color: '#888', whiteSpace: 'nowrap' }}>RAM 38k RPS</div>
             </div>
 
             {/* NODE 9: SQLite (Column 3: left 50%, width 21%) */}
@@ -641,15 +868,20 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
               minWidth: '110px',
               padding: '0.5rem 0.4rem',
               boxSizing: 'border-box',
-              background: stepData.activeNodes.includes('sqlite') ? '#1e2430' : '#181818',
-              border: `2px solid ${stepData.activeNodes.includes('sqlite') ? '#60a5fa' : '#333'}`,
-              borderRadius: '10px',
-              boxShadow: stepData.activeNodes.includes('sqlite') ? '0 0 16px rgba(96, 165, 250, 0.4)' : 'none',
+              background: stepData.activeNodes.includes('sqlite') 
+                ? 'linear-gradient(145deg, #1a273e 0%, #0c1422 100%)' 
+                : 'linear-gradient(145deg, #18191f 0%, #111215 100%)',
+              border: `2px solid ${stepData.activeNodes.includes('sqlite') ? '#3b82f6' : '#333'}`,
+              borderRadius: '12px',
+              boxShadow: stepData.activeNodes.includes('sqlite') 
+                ? '0 0 20px rgba(59, 130, 246, 0.45), inset 0 1px 0 rgba(255,255,255,0.2)' 
+                : '0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)',
               textAlign: 'center',
               transition: 'all 0.3s ease',
             }}>
-              <Database size={16} color="#60a5fa" style={{ margin: '0 auto 0.2rem' }} />
-              <div style={{ fontSize: '0.73rem', fontWeight: 700, color: '#60a5fa', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>SQLite DB</div>
+              <span style={{ position: 'absolute', top: '6px', right: '6px', width: '5px', height: '5px', borderRadius: '50%', background: '#3b82f6', boxShadow: '0 0 6px #3b82f6' }} />
+              <IconSQLite />
+              <div style={{ fontSize: '0.74rem', fontWeight: 700, color: '#60a5fa', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>SQLite DB</div>
               <div style={{ fontSize: '0.6rem', color: '#888', whiteSpace: 'nowrap' }}>WAL Mode &bull; Metadata</div>
             </div>
 
