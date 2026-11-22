@@ -1,0 +1,9 @@
+**/node_modules/
+**/dist/
+**/.env
+**/.env.local
+**/coverage/
+server/data/*.db*
+server/storage/
+worker/output/
+.DS_Store

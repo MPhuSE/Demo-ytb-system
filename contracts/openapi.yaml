@@ -1,0 +1,249 @@
+openapi: 3.0.3
+info:
+  title: Mini YouTube API
+  description: OpenAPI contract for Mini YouTube (Design YouTube simulation)
+  version: 1.0.0
+servers:
+  - url: http://localhost:3001/api/v1
+    description: Local API Server
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /videos:
+    get:
+      summary: Get all videos
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of videos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  videos:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Video'
+                  total:
+                    type: integer
+
+    post:
+      summary: Upload a new video (Async Ingestion)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - title
+                - file
+              properties:
+                title:
+                  type: string
+                  example: Demo HLS Video
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '202':
+          description: Video accepted for processing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  title:
+                    type: string
+                  status:
+                    type: string
+                    example: QUEUED
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '413':
+          $ref: '#/components/responses/ErrorResponse'
+        '415':
+          $ref: '#/components/responses/ErrorResponse'
+
+  /videos/{id}:
+    get:
+      summary: Get video details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Video details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Video'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+
+  /videos/{id}/status:
+    get:
+      summary: Get video transcoding status (Polling)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Video processing status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum: [QUEUED, PROCESSING, READY, FAILED]
+                  progress:
+                    type: integer
+                    nullable: true
+                    example: 50
+                  error:
+                    type: string
+                    nullable: true
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+
+  /videos/{id}/playback:
+    get:
+      summary: Get playback URLs for ready video
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Playback URL and available rendition profiles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  videoId:
+                    type: string
+                    format: uuid
+                  masterUrl:
+                    type: string
+                    example: http://localhost:3001/media/c6d0ef71-82a3-45f0-a223-b99ad67edceb/master.m3u8
+                  qualities:
+                    type: array
+                    items:
+                      type: string
+                    example: ["360p", "720p"]
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '409':
+          description: Video is not ready yet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+components:
+  schemas:
+    Video:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        status:
+          type: string
+          enum: [QUEUED, PROCESSING, READY, FAILED]
+        duration:
+          type: number
+          nullable: true
+        width:
+          type: integer
+          nullable: true
+        height:
+          type: integer
+          nullable: true
+        qualities:
+          type: array
+          items:
+            type: string
+        error_code:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ApiError:
+      type: object
+      properties:
+        code:
+          type: string
+          example: VIDEO_NOT_READY
+        message:
+          type: string
+          example: Video is currently being processed
+        requestId:
+          type: string
+          example: req_123
+
+  responses:
+    ErrorResponse:
+      description: API Error Response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                $ref: '#/components/schemas/ApiError'
