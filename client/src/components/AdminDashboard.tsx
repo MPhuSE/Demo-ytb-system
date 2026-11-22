@@ -90,22 +90,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToUserView
           <button 
             className="btn-secondary" 
             onClick={onBackToUserView} 
-            style={{ marginBottom: '0.5rem', fontSize: '0.8rem', padding: '4px 10px' }}
+            style={{ marginBottom: '0.6rem', fontSize: '0.8rem', padding: '4px 12px', borderRadius: '16px' }}
           >
-            <ArrowLeft size={14} /> Quay về YouTube Web
+            <ArrowLeft size={14} /> Xem Kênh YouTube
           </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <Server size={24} color="#ff4e45" />
-            <h1 style={{ fontSize: '1.4rem', fontWeight: 700 }}>YouTube Studio — Quản Trị Hệ Thống</h1>
-            <span style={{ fontSize: '0.75rem', background: '#333', color: '#4ade80', padding: '2px 8px', borderRadius: '4px', fontFamily: 'var(--font-mono)' }}>
-              ADMIN CONSOLE
+            <Server size={22} color="#ff0000" />
+            <h1 style={{ fontSize: '1.35rem', fontWeight: 700 }}>YouTube Studio</h1>
+            <span style={{ fontSize: '0.72rem', background: '#222', color: '#4ade80', padding: '2px 8px', borderRadius: '4px', fontFamily: 'var(--font-mono)' }}>
+              SYSTEM CONSOLE
             </span>
           </div>
+          <p style={{ color: '#888', fontSize: '0.8rem', marginTop: '0.2rem' }}>
+            Bảng điều khiển quản lý nội dung & hạ tầng chuyển mã HLS phân tán
+          </p>
         </div>
 
-        <button className="btn-secondary" onClick={loadData} disabled={loading}>
+        <button className="btn-secondary" onClick={loadData} disabled={loading} style={{ borderRadius: '18px' }}>
           <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-          <span>Làm Mới Dữ Liệu</span>
+          <span>Làm Mới</span>
         </button>
       </div>
 
@@ -114,10 +117,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToUserView
         <button
           onClick={() => setAdminTab('management')}
           style={{
-            padding: '7px 14px',
+            padding: '7px 16px',
             fontSize: '0.85rem',
             fontWeight: 600,
-            borderRadius: '8px',
+            borderRadius: '20px',
             background: adminTab === 'management' ? '#252525' : 'transparent',
             color: adminTab === 'management' ? '#fff' : '#888',
             border: adminTab === 'management' ? '1px solid #444' : '1px solid transparent',
@@ -126,17 +129,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToUserView
             gap: '6px'
           }}
         >
-          <Film size={16} />
-          <span>Quản Lý Video & Hàng Đợi</span>
+          <Film size={15} />
+          <span>Nội Dung & Hàng Đợi Transcode</span>
         </button>
 
         <button
           onClick={() => setAdminTab('performance')}
           style={{
-            padding: '7px 14px',
+            padding: '7px 16px',
             fontSize: '0.85rem',
             fontWeight: 600,
-            borderRadius: '8px',
+            borderRadius: '20px',
             background: adminTab === 'performance' ? '#172554' : 'transparent',
             color: adminTab === 'performance' ? '#60a5fa' : '#888',
             border: adminTab === 'performance' ? '1px solid #2563eb' : '1px solid transparent',
@@ -145,8 +148,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToUserView
             gap: '6px'
           }}
         >
-          <Activity size={16} />
-          <span>Đo Hiệu Năng & Báo Cáo Hai Luồng</span>
+          <Activity size={15} />
+          <span>Giám Sát Tải & Đo Hiệu Năng</span>
         </button>
       </div>
 

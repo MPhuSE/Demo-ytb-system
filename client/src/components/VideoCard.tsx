@@ -97,32 +97,55 @@ export const VideoCard: React.FC<VideoCardProps> = ({ video, onPlay }) => {
         </div>
       </div>
 
-      <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#f1f1f1', lineHeight: '1.4' }}>
+      <div style={{ padding: '0.9rem', display: 'flex', gap: '0.75rem', flex: 1 }}>
+        {/* Channel Avatar */}
+        <div style={{
+          width: '36px',
+          height: '36px',
+          borderRadius: '50%',
+          backgroundColor: '#272727',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '0.85rem',
+          fontWeight: 700,
+          color: '#ff4e45',
+          flexShrink: 0,
+        }}>
+          YT
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1, minWidth: 0 }}>
+          <h3 style={{
+            fontSize: '0.95rem',
+            fontWeight: 600,
+            color: '#f1f1f1',
+            lineHeight: '1.35',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            cursor: isReady ? 'pointer' : 'default',
+          }}
+          onClick={() => isReady && onPlay(video)}
+          >
             {video.title}
           </h3>
-          <span className={`status-badge status-${video.status.toLowerCase()}`}>
-            {video.status}
-          </span>
-        </div>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: 'auto', paddingTop: '0.5rem' }}>
-          {video.qualities.map((q) => (
-            <span key={q} className="badge-tag">
-              {q}
+          <div style={{ fontSize: '0.78rem', color: '#aaa', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span>Studio Channel</span>
+            <span style={{ fontSize: '0.65rem' }}>&bull;</span>
+            <span style={{ color: isReady ? '#4ade80' : isProcessing ? '#facc15' : '#888' }}>
+              {isReady ? 'Đã sẵn sàng HLS' : isProcessing ? `Đang Encode ${video.progress}%` : video.status}
             </span>
-          ))}
-          {video.width && video.height && (
-            <span className="badge-tag" style={{ color: '#888' }}>
-              {video.width}x{video.height}
-            </span>
-          )}
-        </div>
+          </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#666', borderTop: '1px solid #242424', paddingTop: '0.5rem', marginTop: '0.4rem' }}>
-          <span style={{ fontFamily: 'var(--font-mono)' }}>ID: {video.id.slice(0, 8)}...</span>
-          <span>{formatDate(video.created_at)}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', color: '#777', marginTop: '2px' }}>
+            <span>{video.qualities.length > 0 ? video.qualities.join(', ') : 'HLS Stream'}</span>
+            <span>&bull;</span>
+            <span>{formatDate(video.created_at)}</span>
+          </div>
         </div>
       </div>
     </div>

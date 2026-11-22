@@ -125,10 +125,10 @@ export const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onSuc
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
                     <UploadCloud size={44} color="#888" />
                     <span style={{ fontWeight: 500, fontSize: '0.95rem' }}>
-                      Nhấp để chọn file video MP4 (≤ 100MB)
+                      Nhấp hoặc kéo thả file video (MP4, MOV, WebM)
                     </span>
                     <span style={{ color: '#666', fontSize: '0.8rem' }}>
-                      Khuyến nghị file 10-20 giây để demo transcoding nhanh
+                      Hệ thống tự động chuyển mã đa độ phân giải 360p & 720p HLS
                     </span>
                   </div>
                 )}
@@ -178,8 +178,9 @@ export const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onSuc
                   type="submit"
                   className="btn-primary"
                   disabled={isSubmitting || !file}
+                  style={{ borderRadius: '18px' }}
                 >
-                  {isSubmitting ? 'Đang Xử Lý...' : 'Bắt Đầu Upload (202)'}
+                  {isSubmitting ? 'Đang Tải Lên...' : 'Tải Video Lên'}
                 </button>
               </div>
             </form>

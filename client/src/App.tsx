@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Navbar } from './components/Navbar.tsx';
 import { VideoCard } from './components/VideoCard.tsx';
 import { UploadModal } from './components/UploadModal.tsx';
@@ -7,7 +7,7 @@ import { ArchitectureModal } from './components/ArchitectureModal.tsx';
 import { AdminDashboard } from './components/AdminDashboard.tsx';
 import { VideoItem } from './types.ts';
 import { api } from './services/api.ts';
-import { RefreshCw, Film, Server, Database, Video } from 'lucide-react';
+import { RefreshCw, Film, Loader2 } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [videos, setVideos] = useState<VideoItem[]>([]);
@@ -17,6 +17,8 @@ export const App: React.FC = () => {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isArchitectureOpen, setIsArchitectureOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<VideoItem | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'ready' | 'processing' | '720p'>('all');
 
   const loadVideos = useCallback(async () => {
     try {
@@ -88,6 +90,23 @@ export const App: React.FC = () => {
     return () => clearInterval(timer);
   }, [videos, loadVideos]);
 
+  // Filter videos based on category and search query
+  const filteredVideos = useMemo(() => {
+    return videos.filter((v) => {
+      if (searchQuery.trim() && !v.title.toLowerCase().includes(searchQuery.toLowerCase().trim())) {
+        return false;
+      }
+      if (selectedCategory === 'ready' && v.status !== 'READY') return false;
+      if (selectedCategory === 'processing' && v.status === 'READY') return false;
+      if (selectedCategory === '720p' && (!v.qualities || !v.qualities.includes('720p'))) {
+        return false;
+      }
+      return true;
+    });
+  }, [videos, searchQuery, selectedCategory]);
+
+  const activeProcessingVideo = videos.find((v) => v.status === 'PROCESSING' || v.status === 'QUEUED');
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar
@@ -96,6 +115,8 @@ export const App: React.FC = () => {
         onToggleView={(view) => setActiveView(view)}
         onOpenUpload={() => setIsUploadOpen(true)}
         onOpenArchitecture={() => setIsArchitectureOpen(true)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
 
       <main className="container" style={{ flex: 1, paddingBottom: '3rem' }}>
@@ -106,54 +127,82 @@ export const App: React.FC = () => {
           />
         ) : (
           <>
-            {/* Architecture Highlight Banner */}
-            <div className="hero-card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-                <div>
-                  <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.4rem', color: '#fff' }}>
-                    Hệ Thống Mô Phỏng YouTube — Thiết Kế Alex Xu
-                  </h1>
-                  <p style={{ color: '#aaa', fontSize: '0.9rem', maxWidth: '750px', lineHeight: '1.5' }}>
-                    Minh họa chuỗi vận hành thực tế: <strong>Tải lên bất đồng bộ (HTTP 202)</strong> &rarr; <strong>Hàng đợi xử lý</strong> &rarr; <strong>FFmpeg cắt đa độ phân giải HLS</strong> &rarr; <strong>Trình phát thích ứng Adaptive Bitrate</strong>.
-                  </p>
-                </div>
+            {/* Category Filter Chips Bar */}
+            <div className="chips-container">
+              <button
+                className={`chip-btn ${selectedCategory === 'all' ? 'active' : ''}`}
+                onClick={() => setSelectedCategory('all')}
+              >
+                Tất cả ({videos.length})
+              </button>
+              <button
+                className={`chip-btn ${selectedCategory === 'ready' ? 'active' : ''}`}
+                onClick={() => setSelectedCategory('ready')}
+              >
+                Đã sẵn sàng HLS ({videos.filter((v) => v.status === 'READY').length})
+              </button>
+              <button
+                className={`chip-btn ${selectedCategory === '720p' ? 'active' : ''}`}
+                onClick={() => setSelectedCategory('720p')}
+              >
+                720p HD Multi-bitrate
+              </button>
+              <button
+                className={`chip-btn ${selectedCategory === 'processing' ? 'active' : ''}`}
+                onClick={() => setSelectedCategory('processing')}
+              >
+                Đang xử lý ({videos.filter((v) => v.status !== 'READY').length})
+              </button>
+            </div>
 
-                <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-                  <div className="workflow-pill">
-                    <Server size={14} color="#60a5fa" />
-                    <span>Express API (Control Path)</span>
-                  </div>
-                  <div className="workflow-pill">
-                    <Database size={14} color="#facc15" />
-                    <span>SQLite (Metadata)</span>
-                  </div>
-                  <div className="workflow-pill">
-                    <Film size={14} color="#f87171" />
-                    <span>FFmpeg Transcoder</span>
-                  </div>
-                  <div className="workflow-pill">
-                    <Video size={14} color="#4ade80" />
-                    <span>HLS.js (Video Path)</span>
+            {/* Active Transcoding Notification Bar */}
+            {activeProcessingVideo && (
+              <div style={{
+                background: 'rgba(234, 179, 8, 0.1)',
+                border: '1px solid rgba(234, 179, 8, 0.3)',
+                borderRadius: '10px',
+                padding: '0.85rem 1.25rem',
+                marginBottom: '1.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '0.75rem'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <Loader2 size={18} color="#facc15" className="animate-spin" />
+                  <span style={{ fontSize: '0.88rem', color: '#fef08a' }}>
+                    Worker đang chuyển mã: <strong>"{activeProcessingVideo.title}"</strong> ({activeProcessingVideo.progress}%)
+                  </span>
+                </div>
+                <div style={{ width: '160px' }}>
+                  <div className="progress-bar-container" style={{ width: '100%', height: '6px' }}>
+                    <div className="progress-bar-fill" style={{ width: `${activeProcessingVideo.progress}%` }}></div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Section Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '2rem 0 1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Danh Sách Video Demo</h2>
-                <span style={{ fontSize: '0.8rem', color: '#888', background: '#222', padding: '2px 8px', borderRadius: '10px' }}>
-                  {videos.length} videos
+            {/* Header info */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0.5rem 0 1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontSize: '0.9rem', color: '#aaa' }}>
+                  {filteredVideos.length} video
                 </span>
+                {searchQuery && (
+                  <span style={{ fontSize: '0.8rem', color: '#3ea6ff' }}>
+                    &bull; Kết quả tìm kiếm "{searchQuery}"
+                  </span>
+                )}
               </div>
 
               <button
                 className="btn-secondary"
                 onClick={loadVideos}
-                style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
+                style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', borderRadius: '16px' }}
+                title="Làm mới danh sách video"
               >
-                <RefreshCw size={14} />
+                <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
                 <span>Làm Mới</span>
               </button>
             </div>
@@ -164,20 +213,24 @@ export const App: React.FC = () => {
                 <div style={{ width: '36px', height: '36px', border: '3px solid #ff0000', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 1rem' }} />
                 <span>Đang tải danh sách video...</span>
               </div>
-            ) : videos.length === 0 ? (
+            ) : filteredVideos.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '4rem 1.5rem', background: '#161616', borderRadius: '12px', border: '1px dashed #333' }}>
-                <Film size={48} color="#555" style={{ margin: '0 auto 1rem' }} />
-                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Chưa có video nào</h3>
-                <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
-                  Hãy tải lên một video MP4 để quan sát chuỗi xử lý HLS.
+                <Film size={44} color="#555" style={{ margin: '0 auto 0.75rem' }} />
+                <h3 style={{ fontSize: '1.05rem', marginBottom: '0.4rem', color: '#eee' }}>
+                  {searchQuery ? 'Không tìm thấy video nào phù hợp' : 'Chưa có video nào'}
+                </h3>
+                <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
+                  {searchQuery ? 'Hãy thử tìm kiếm với từ khóa khác.' : 'Tải lên video MP4 để thưởng thức phát trực tuyến HLS.'}
                 </p>
-                <button className="btn-primary" onClick={() => setIsUploadOpen(true)}>
-                  Tải Video Đầu Tiên
-                </button>
+                {!searchQuery && (
+                  <button className="btn-primary" onClick={() => setIsUploadOpen(true)} style={{ borderRadius: '18px' }}>
+                    Tải Video Lên
+                  </button>
+                )}
               </div>
             ) : (
               <div className="video-grid">
-                {videos.map((video) => (
+                {filteredVideos.map((video) => (
                   <VideoCard
                     key={video.id}
                     video={video}
