@@ -4,9 +4,10 @@ import { X, Layers, HardDrive, Cpu, Zap, Globe, Database } from 'lucide-react';
 interface ArchitectureModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenSimulator?: () => void;
 }
 
-export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({ isOpen, onClose }) => {
+export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({ isOpen, onClose, onOpenSimulator }) => {
   const [activeTab, setActiveTab] = useState<'paths' | 'upload' | 'hls' | 'scaling'>('paths');
 
   if (!isOpen) return null;
@@ -213,7 +214,29 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({ isOpen, on
           )}
         </div>
 
-        <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', background: '#141414' }}>
+        <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#141414' }}>
+          {onOpenSimulator ? (
+            <button
+              onClick={() => {
+                onClose();
+                onOpenSimulator();
+              }}
+              style={{
+                padding: '0.45rem 1rem',
+                borderRadius: '16px',
+                background: '#d97706',
+                color: '#fff',
+                border: '1px solid #f59e0b',
+                fontSize: '0.82rem',
+                fontWeight: 600,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <Zap size={14} /> Mở Trình Mô Phỏng Hoạt Họa (Interactive Flow)
+            </button>
+          ) : <div />}
           <button className="btn-secondary" onClick={onClose} style={{ borderRadius: '16px' }}>
             Đóng
           </button>

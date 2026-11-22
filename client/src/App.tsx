@@ -5,6 +5,7 @@ import { UploadModal } from './components/UploadModal.tsx';
 import { VideoPlayerModal } from './components/VideoPlayerModal.tsx';
 import { ArchitectureModal } from './components/ArchitectureModal.tsx';
 import { AdminDashboard } from './components/AdminDashboard.tsx';
+import { InteractiveArchitectureSimulator } from './components/InteractiveArchitectureSimulator.tsx';
 import { VideoItem } from './types.ts';
 import { api } from './services/api.ts';
 import { RefreshCw, Film, Loader2 } from 'lucide-react';
@@ -13,7 +14,7 @@ export const App: React.FC = () => {
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isHealthy, setIsHealthy] = useState(false);
-  const [activeView, setActiveView] = useState<'user' | 'admin'>('user');
+  const [activeView, setActiveView] = useState<'user' | 'admin' | 'simulator'>('user');
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isArchitectureOpen, setIsArchitectureOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<VideoItem | null>(null);
@@ -120,7 +121,9 @@ export const App: React.FC = () => {
       />
 
       <main className="container" style={{ flex: 1, paddingBottom: '3rem' }}>
-        {activeView === 'admin' ? (
+        {activeView === 'simulator' ? (
+          <InteractiveArchitectureSimulator onBackToHome={() => setActiveView('user')} />
+        ) : activeView === 'admin' ? (
           <AdminDashboard
             onBackToUserView={() => setActiveView('user')}
             onPlayVideo={(v) => setSelectedVideo(v)}
@@ -260,6 +263,7 @@ export const App: React.FC = () => {
       <ArchitectureModal
         isOpen={isArchitectureOpen}
         onClose={() => setIsArchitectureOpen(false)}
+        onOpenSimulator={() => setActiveView('simulator')}
       />
     </div>
   );

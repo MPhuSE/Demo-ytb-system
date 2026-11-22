@@ -201,6 +201,19 @@ input, select {
   gap: 0.65rem;
 }
 
+.flow-animated {
+  animation: flowStroke 1s linear infinite;
+}
+
+@keyframes flowStroke {
+  from {
+    stroke-dashoffset: 20;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 .btn-primary {
   background-color: var(--yt-red);
   color: white;

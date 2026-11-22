@@ -1,10 +1,10 @@
 import React from 'react';
-import { Upload, Layers, Search, Video, LayoutDashboard, User } from 'lucide-react';
+import { Upload, Layers, Search, Video, LayoutDashboard, User, Activity } from 'lucide-react';
 
 interface NavbarProps {
   isHealthy: boolean;
-  activeView: 'user' | 'admin';
-  onToggleView: (view: 'user' | 'admin') => void;
+  activeView: 'user' | 'admin' | 'simulator';
+  onToggleView: (view: 'user' | 'admin' | 'simulator') => void;
   onOpenUpload: () => void;
   onOpenArchitecture: () => void;
   searchQuery?: string;
@@ -94,12 +94,33 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Right: Actions */}
         <div className="nav-actions">
+          {/* Simulator Button */}
+          <button 
+            onClick={() => onToggleView(activeView === 'simulator' ? 'user' : 'simulator')}
+            style={{ 
+              padding: '0.45rem 0.85rem', 
+              fontSize: '0.82rem', 
+              borderRadius: '18px',
+              fontWeight: 600,
+              background: activeView === 'simulator' ? '#d97706' : '#222',
+              color: '#fff',
+              border: activeView === 'simulator' ? '1px solid #f59e0b' : '1px solid #383838',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+            title="Mô phỏng trực quan hoạt họa kiến trúc 2 tuyến"
+          >
+            <Activity size={15} color={activeView === 'simulator' ? '#fff' : '#f59e0b'} />
+            <span>Mô Phỏng 2 Tuyến</span>
+          </button>
+
           {/* Architecture Info Button */}
           <button 
             className="btn-secondary" 
             onClick={onOpenArchitecture}
             style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem', borderRadius: '18px' }}
-            title="Xem sơ đồ kiến trúc hệ thống"
+            title="Xem thông số kỹ thuật kiến trúc"
           >
             <Layers size={15} color="#3ea6ff" />
             <span>Kiến Trúc</span>
@@ -107,7 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Mode Switcher */}
           <button
-            onClick={() => onToggleView(activeView === 'user' ? 'admin' : 'user')}
+            onClick={() => onToggleView(activeView === 'admin' ? 'user' : 'admin')}
             style={{
               padding: '0.45rem 0.85rem',
               fontSize: '0.82rem',
@@ -120,17 +141,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               alignItems: 'center',
               gap: '6px',
             }}
-            title={activeView === 'user' ? 'Mở YouTube Studio' : 'Về Trang Xem Video'}
+            title={activeView === 'admin' ? 'Về Trang Xem Video' : 'Mở YouTube Studio'}
           >
-            {activeView === 'user' ? (
-              <>
-                <LayoutDashboard size={15} color="#ff4e45" />
-                <span>YouTube Studio</span>
-              </>
-            ) : (
+            {activeView === 'admin' ? (
               <>
                 <Video size={15} color="#4ade80" />
                 <span>Xem Video</span>
+              </>
+            ) : (
+              <>
+                <LayoutDashboard size={15} color="#ff4e45" />
+                <span>YouTube Studio</span>
               </>
             )}
           </button>
