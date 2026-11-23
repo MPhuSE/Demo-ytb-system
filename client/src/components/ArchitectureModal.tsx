@@ -100,7 +100,7 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({ isOpen, on
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                 <div style={{ background: '#141414', border: '1px solid #333', borderRadius: '8px', padding: '1rem' }}>
                   <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#60a5fa', marginBottom: '0.5rem' }}>
-                    <Cpu size={18} /> Control Path (Port 3001)
+                    <Cpu size={18} /> Control Path (Port 3100)
                   </h4>
                   <ul style={{ fontSize: '0.82rem', color: '#aaa', lineHeight: '1.6', paddingLeft: '1.2rem' }}>
                     <li>Quản lý metadata: tiêu đề, trạng thái, tiến trình chuyển mã.</li>

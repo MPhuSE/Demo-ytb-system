@@ -732,7 +732,7 @@ const SCENARIO_OVERVIEW: SimulationScenario = {
       leftColor: '#0ea5e9',
       rightColor: '#0369a1',
       label: 'Express API Server',
-      subLabel: 'Port 3001 Node.js',
+      subLabel: 'Port 3100 Node.js',
       badge: '11.9k RPS • HTTP 202',
       iconType: 'server'
     },
@@ -1503,7 +1503,7 @@ const SCENARIO_DEEP_CACHE: SimulationScenario = {
       rightColor: '#075985',
       label: 'API Server',
       subLabel: 'Cache-Aside Logic',
-      badge: 'Port 3001',
+      badge: 'Port 3100',
       iconType: 'server'
     },
     {
