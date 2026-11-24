@@ -141,14 +141,16 @@ export const App: React.FC = () => {
 
         {/* Content Area */}
         <main
+          className={`app-main-content view-${activeView}`}
           style={{
             flex: 1,
-            marginLeft: activeView === 'user' ? (isSidebarCollapsed ? '72px' : '240px') : 0,
+            marginLeft: activeView === 'user' ? (isSidebarCollapsed ? '72px' : '240px') : (activeView === 'simulator' ? 'auto' : 0),
+            marginRight: activeView === 'simulator' ? 'auto' : undefined,
             width: activeView === 'user' ? (isSidebarCollapsed ? 'calc(100% - 72px)' : 'calc(100% - 240px)') : '100%',
             transition: 'margin-left 0.2s ease, width 0.2s ease',
-            padding: activeView === 'simulator' ? '1rem 1.5rem 3rem' : '0.5rem 1.75rem 4rem',
-            maxWidth: activeView === 'simulator' ? '1600px' : '100%',
-            marginRight: 'auto',
+            padding: activeView === 'simulator' ? '1rem clamp(1rem, 2.5vw, 3rem) 3rem' : '0.5rem 1.75rem 4rem',
+            maxWidth: activeView === 'simulator' ? '1800px' : '100%',
+            boxSizing: 'border-box',
           }}
         >
           {activeView === 'simulator' ? (

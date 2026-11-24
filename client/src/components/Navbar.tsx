@@ -27,13 +27,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleSidebar,
 }) => {
   return (
-    <nav style={{
+    <nav className="yt-navbar" style={{
       position: 'sticky',
       top: 0,
       zIndex: 100,
       backgroundColor: '#0f0f0f',
       borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-      height: '56px',
+      minHeight: '56px',
       display: 'flex',
       alignItems: 'center',
       padding: '0 1rem',
@@ -42,7 +42,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* ============================================================
           LEFT: HAMBURGER MENU & YOUTUBE LOGO WITH STATUS
       ============================================================ */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: '220px' }}>
+      <div className="nav-left-section" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         {/* Hamburger Menu Toggle */}
         <button
           onClick={onToggleSidebar}
@@ -152,7 +152,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* ============================================================
           CENTER: YOUTUBE CAPSULE SEARCH BAR & VOICE SEARCH
       ============================================================ */}
-      <div style={{
+      <div className="nav-center-section" style={{
         display: 'flex',
         alignItems: 'center',
         flex: 1,
@@ -245,7 +245,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* ============================================================
           RIGHT: ACTION CONTROLS & USER AVATAR
       ============================================================ */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div className="nav-right-section" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         {/* Mô Phỏng 2 Tuyến Button */}
         <button
           onClick={() => onToggleView(activeView === 'simulator' ? 'user' : 'simulator')}
@@ -272,7 +272,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           title="Mở mô phỏng trực quan 3D kiến trúc 2 tuyến"
         >
           <Activity size={16} color={activeView === 'simulator' ? '#ffffff' : '#f59e0b'} />
-          <span>Mô Phỏng 2 Tuyến</span>
+          <span className="nav-btn-label">Mô Phỏng 2 Tuyến</span>
         </button>
 
         {/* Kiến Trúc Sơ Đồ Button */}
@@ -297,7 +297,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           title="Xem thông số kỹ thuật kiến trúc"
         >
           <Layers size={16} color="#38bdf8" />
-          <span>Kiến Trúc</span>
+          <span className="nav-btn-label">Kiến Trúc</span>
         </button>
 
         {/* YouTube Studio Button */}
@@ -328,12 +328,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           {activeView === 'admin' ? (
             <>
               <Video size={16} color="#4ade80" />
-              <span>Xem Video</span>
+              <span className="nav-btn-label">Xem Video</span>
             </>
           ) : (
             <>
               <LayoutDashboard size={16} color="#ef4444" />
-              <span>Studio</span>
+              <span className="nav-btn-label">Studio</span>
             </>
           )}
         </button>
@@ -360,7 +360,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           title="Tải video mới lên để mã hóa HLS"
         >
           <Plus size={16} color="#fff" strokeWidth={2.5} />
-          <span>Tạo</span>
+          <span className="nav-btn-label">Tạo</span>
         </button>
 
         {/* Notification Bell */}

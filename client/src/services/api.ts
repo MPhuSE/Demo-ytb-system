@@ -4,7 +4,7 @@ import {
   PerformanceLogItem, BenchmarkResult, StressTestResult 
 } from '../types.ts';
 
-const API_BASE_URL = 'http://localhost:3100/api/v1';
+const API_BASE_URL = 'http://localhost:3001/api/v1';
 
 export const api = {
   async checkHealth(): Promise<{ status: string; timestamp: string }> {

@@ -2617,7 +2617,7 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
       {/* ============================================================
           MAIN GRID: 3D ISOMETRIC CANVAS (LEFT) & EXPLANATORY PANEL (RIGHT)
       ============================================================ */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.8fr) minmax(330px, 380px)', gap: '1.25rem', alignItems: 'start' }}>
+      <div className="sim-main-grid" style={{ alignItems: 'start' }}>
         
         {/* Left: 3D Isometric SVG Stage */}
         <div style={{
@@ -2627,7 +2627,7 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
           padding: '1.25rem',
           position: 'relative',
           overflow: 'hidden',
-          minHeight: '570px',
+          minHeight: '520px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
@@ -2654,10 +2654,10 @@ export const InteractiveArchitectureSimulator: React.FC<{ onBackToHome: () => vo
           </div>
 
           {/* SVG 3D Canvas Stage */}
-          <div style={{ position: 'relative', width: '100%', height: '480px', zIndex: 3 }}>
+          <div className="sim-svg-stage-wrap" style={{ position: 'relative', width: '100%', zIndex: 3 }}>
             <svg
               viewBox="0 0 960 480"
-              style={{ width: '100%', height: '100%', overflow: 'visible' }}
+              style={{ width: '100%', height: 'auto', maxHeight: '520px', overflow: 'visible' }}
             >
               {/* ============================================================
                   SUPER-VIBRANT 3D ISOMETRIC COLOR GRADIENTS & SHADOW DEFINITIONS

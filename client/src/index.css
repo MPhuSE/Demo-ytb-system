@@ -482,3 +482,122 @@ input, select {
   padding: 2px 6px;
   border-radius: 4px;
 }
+
+/* ============================================================
+   RESPONSIVE DESIGN & MEDIA QUERIES (ULTRAWIDE, DESKTOP, TABLET, MOBILE)
+============================================================ */
+
+/* App Main Container */
+.app-main-content {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.app-main-content.view-simulator {
+  max-width: 1800px;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Simulator 3D Layout */
+.sim-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.75fr) minmax(330px, 420px);
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.sim-svg-stage-wrap {
+  position: relative;
+  width: 100%;
+  min-height: 440px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sim-svg-stage-wrap svg {
+  width: 100%;
+  height: auto;
+  max-height: 540px;
+  display: block;
+}
+
+/* Navbar Responsive rules */
+.nav-left-section {
+  flex-shrink: 0;
+}
+
+.nav-center-section {
+  min-width: 0;
+}
+
+.nav-right-section {
+  flex-shrink: 0;
+}
+
+/* Media Query: Screens <= 1200px (Laptops / Small Desktops) */
+@media (max-width: 1200px) {
+  .sim-main-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem;
+  }
+  .app-main-content.view-simulator {
+    padding: 0.75rem 1rem 3rem !important;
+  }
+}
+
+/* Media Query: Screens <= 960px (Tablets) */
+@media (max-width: 960px) {
+  .nav-btn-label {
+    display: none;
+  }
+  .yt-navbar button {
+    padding: 6px 10px !important;
+  }
+  .nav-center-section {
+    max-width: 320px;
+  }
+}
+
+/* Media Query: Screens <= 768px (Mobile & Small Tablets) */
+@media (max-width: 768px) {
+  .yt-navbar {
+    padding: 0.35rem 0.6rem !important;
+  }
+  .search-input-wrap {
+    height: 36px;
+  }
+  .video-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px 10px;
+  }
+  .sim-svg-stage-wrap {
+    min-height: 320px;
+    overflow-x: auto;
+  }
+  .sim-svg-stage-wrap svg {
+    min-width: 720px;
+  }
+  .modal-overlay {
+    padding: 0.5rem;
+  }
+  .modal-content {
+    max-height: 96vh;
+    border-radius: 10px;
+  }
+}
+
+/* Media Query: Screens <= 520px (Mobile phones) */
+@media (max-width: 520px) {
+  .nav-center-section {
+    display: none !important; /* Hide search input on very small screens to avoid header break */
+  }
+  .video-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .chips-container {
+    padding: 0.4rem 0 0.5rem;
+  }
+}
+
