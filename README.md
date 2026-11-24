@@ -1,96 +1,139 @@
-# MINI YOUTUBE — SYSTEM DESIGN MVP
+# Mini YouTube — System Design Project
 
-> Dự án mô phỏng kiến trúc **Design YouTube** (theo *System Design Interview* — Alex Xu, Chương 14) chạy thực tế trên `localhost`.  
-> Phục vụ mục đích: **Trình diễn demo hoàn chỉnh (Upload → Transcoding → HLS Playback)** và **giải thích các luồng kiến trúc (Workflows)**.
-
----
-
-## 1. Kiến trúc hệ thống & Hai đường truyền dữ liệu
-
-```
-[React Client :5173]
-       │
-       ├── (1) Control Path: API Metadata / JSON ──────────► [Express API :3001]
-       │   - POST /api/v1/videos (Trả 202 Accepted)                 │
-       │   - GET /api/v1/videos/:id/status (Polling)                ▼
-       │   - GET /api/v1/videos/:id/playback                [SQLite Metadata]
-       │                                                            │
-       │                                                            ▼
-       │                                                  [Transcode Queue]
-       │                                                            │
-       │                                                            ▼
-       │                                                   [FFmpeg Runner]
-       │                                                    (360p & 720p HLS)
-       │                                                            │
-       └── (2) Video Path: HLS Streaming (.m3u8, .ts) ◄─────────────┘
-           - Tải master.m3u8 & segments trực tiếp từ Media Origin
-```
-
-### 4 Workflow cốt lõi cần giải thích khi Demo
-1. **Control Path vs Video Path:** API Server chỉ xử lý logic nhẹ (JSON), không gánh stream media. Media Origin phục vụ trực tiếp các file `.m3u8` và `.ts`.
-2. **Async Ingestion (Tiếp nhận bất đồng bộ):** Client upload MP4 $\to$ Server lưu tạm $\to$ Ghi nhận `QUEUED` $\to$ **Trả ngay HTTP 202 Accepted**. Không chạy FFmpeg đồng bộ để tránh nghẽn thread và timeout HTTP.
-3. **Adaptive Bitrate Transcoding (HLS):** Worker dùng `ffprobe` đọc thông số gốc $\to$ Dùng `ffmpeg` cắt ra các segment `.ts` 4 giây cho độ phân giải 360p và 720p (chỉ sinh 720p nếu nguồn $\ge 720\text{p}$) $\to$ Tạo `master.m3u8` $\to$ Xác thực xong mới chuyển trạng thái sang `READY`.
-4. **HLS Streaming Playback:** Trình phát `hls.js` đọc `master.m3u8`, tự động đo băng thông mạng để nhảy chất lượng mượt mà (Auto ABR) hoặc cho phép người dùng tự chọn độ phân giải.
+> Dự án mô phỏng kiến trúc hệ thống chia sẻ và phát video trực tuyến (dựa trên bài toán **Design YouTube** trong cuốn *System Design Interview* — Alex Xu, Chương 14).  
+> Mã nguồn được thiết kế hoàn chỉnh chạy trên `localhost` nhằm giúp người học thực hành và nắm bắt các khái niệm System Design thực tế thay vì chỉ học lý thuyết trừu tượng.
 
 ---
 
-## 2. Hướng dẫn khởi động nhanh (Quick Start)
+## 🎯 1. Các kiến thức cốt lõi học được từ dự án
 
-### Yêu cầu tiên quyết
-* Node.js $\ge 18$
-* FFmpeg và FFprobe đã cài trong hệ thống (`ffmpeg -version`)
+Dự án này tích hợp và giải quyết các bài toán kỹ thuật thường gặp khi thiết kế hệ thống phân tán:
 
-### Bước 1: Chuẩn bị dữ liệu Demo mẫu (Seed)
-Lệnh sau sẽ sinh video test 720p và chạy pipeline transcode sẵn 1 video ở trạng thái `READY`:
+### 1.1. Phân tách hai luồng dữ liệu (Control Path vs Data Path)
+* **Control Path (Metadata Path):** Xử lý các nghiệp vụ nhẹ qua RESTful API bằng JSON (tiêu đề, thời lượng, trạng thái, tiến độ). Luồng này yêu cầu độ trễ thấp và không được để các tác vụ nặng làm nghẽn thread.
+* **Video Path (Data Path):** Chịu trách nhiệm tải và truyền phát dữ liệu media nhị phân dung lượng lớn (video segments, playlists). Trong thực tế, luồng này sẽ đi trực tiếp qua Object Storage và mạng CDN, tách biệt hoàn toàn khỏi máy chủ API ứng dụng.
+
+### 1.2. Giao thức Streaming & Adaptive Bitrate (HLS)
+* **Tại sao không phát trực tiếp file MP4 nguyên bản?** File MP4 nguyên khối bắt buộc người dùng tải tuần tự hoặc tốn nhiều băng thông tải trước những đoạn chưa xem.
+* **Nguyên lý HLS (HTTP Live Streaming):**
+  * Video được phân tách thành các đoạn ngắn độc lập có thời lượng 4 giây định dạng `.ts`.
+  * **Master Playlist (`master.m3u8`):** Đóng vai trò chỉ mục tổng, liệt kê các profile chất lượng khả dụng (`360p`, `720p`) cùng băng thông tương ứng.
+  * **Media Playlists (`360p.m3u8`, `720p.m3u8`):** Danh sách trỏ tuần tự đến từng file chunk `.ts`.
+* **Adaptive Bitrate Streaming (ABR):** Phía Client tích hợp thư viện `hls.js` để tự động đo tốc độ mạng hiện thời của người xem và linh hoạt nhảy profile (từ 720p xuống 360p khi mạng yếu hoặc ngược lại) mà không làm ngắt quãng video.
+
+### 1.3. Tiếp nhận bất đồng bộ (Asynchronous Ingestion)
+* **HTTP 202 Accepted:** Tác vụ mã hóa video tiêu tốn rất nhiều CPU và thời gian xử lý. Việc giữ kết nối HTTP đồng bộ sẽ gây nghẽn kết nối và timeout. Do đó, API lưu file tạm vào đĩa, ghi nhận trạng thái ban đầu là `QUEUED` và phản hồi ngay mã **HTTP 202 Accepted** cùng `videoId`.
+* **Hàng đợi tác vụ (Job Queue):** Quản lý thứ tự chuyển mã, tách biệt khâu nhận request và khâu xử lý CPU-bound.
+* **Cập nhật tiến trình qua Polling:** Client gửi request thăm dò định kỳ (mỗi 2 giây) tới endpoint `/api/v1/videos/:id/status` để hiển thị thanh tiến trình phần trăm thực tế cho người dùng.
+
+### 1.4. Xử lý Media với FFmpeg & FFprobe
+* **Đọc metadata trước khi nén (Probe):** Sử dụng `ffprobe` trích xuất độ phân giải (`width`, `height`), thời lượng (`duration`) và codec gốc.
+* **Tránh upscale video giả tạo:** Hệ thống kiểm tra: chỉ sinh profile `720p` khi video gốc có độ phân giải $\ge 720\text{p}$. Nếu video nguồn có chất lượng thấp hơn, hệ thống chỉ tạo profile `360p` để tiết kiệm tài nguyên tính toán và lưu trữ.
+* **Mã hóa đa luồng:** Chuyển đổi video sang chuẩn nén H.264 (`libx264`) và âm thanh AAC (`aac`), định cấu hình khoảng cách keyframe cố định (`-g 48`, `-keyint_min 48`) để đảm bảo các đoạn cắt 4 giây có thể chuyển đổi mượt mà giữa các profile.
+
+### 1.5. Bộ nhớ đệm & Cơ sở dữ liệu (Caching & Concurrency)
+* **Redis Cache-Aside:** Lưu tạm trạng thái video (`status:<id>`) trên RAM để phục vụ hàng ngàn request polling từ Client mà không gây quá tải cho ổ đĩa cơ sở dữ liệu.
+* **TTL (Time-To-Live) phân tầng:**
+  * Video đang xử lý (`PROCESSING`): TTL 2 giây (vì phần trăm tiến độ thay đổi liên tục).
+  * Video đã hoàn tất (`READY`): TTL 3600 giây (dữ liệu cố định).
+* **Cơ chế Fallback (Graceful Degradation):** Nếu môi trường chưa bật Redis, hệ thống tự động suy giảm nhẹ về bộ nhớ RAM của tiến trình (In-Memory) mà không làm sập ứng dụng.
+* **SQLite WAL Mode:** Kích hoạt `PRAGMA journal_mode = WAL` (Write-Ahead Logging) cho phép các truy vấn đọc và ghi thực thi song song, tối ưu hóa I/O trên đĩa.
+* **Mô phỏng CDN Edge Caching:** Cung cấp middleware phục vụ media tĩnh, gắn cờ `X-Cache-Status` (`HIT` / `MISS`) để quan sát cơ chế lưu đệm ở tầng biên.
+
+### 1.6. Quan sát & Đánh giá hiệu năng (Observability & Benchmarking)
+* Thu thập số liệu hiệu năng sau mỗi lượt chuyển mã:
+  * **Queue Wait Time:** Thời gian nằm chờ trong hàng đợi.
+  * **Transcode Latency:** Thời gian FFmpeg thực thi.
+  * **Speed Factor:** Tốc độ mã hóa so với thời lượng thực tế của video ($> 1\text{x}$ nghĩa là encode nhanh hơn thời gian thực phát video).
+  * **Compression Ratio:** Tỉ lệ dung lượng sau khi nén so với dung lượng file gốc.
+* Tích hợp công cụ bắn tải **Autocannon** để đo RPS và độ trễ (P95, P99) của hệ thống.
+
+---
+
+## 🛠️ 2. Công nghệ sử dụng trong dự án
+
+* **Backend:** Node.js, Express, TypeScript, Better-SQLite3, ioredis, Multer.
+* **Media Engine:** FFmpeg & FFprobe (được nhúng sẵn qua npm, tự động chạy trên mọi máy mà không cần cài thêm cấu hình hệ thống ngoài).
+* **Database & Cache:** SQLite (WAL mode), Redis / Memurai.
+* **Frontend:** React 18, TypeScript, Vite, HLS.js, Lucide Icons.
+* **Đo tải:** Autocannon.
+
+---
+
+## 🚀 3. Hướng dẫn khởi động nhanh (Quick Start)
+
+### Yêu cầu môi trường
+* Node.js phiên bản $\ge 18$.
+* *(Tùy chọn)* Redis hoặc Memurai trên cổng `6379`. Nếu không có, server tự động dùng bộ nhớ trong.
+
+### Bước 1: Cài đặt thư viện
 ```bash
-npm run seed
+# 1. Cài đặt cho Backend
+cd server
+npm install
+
+# 2. Cài đặt cho Frontend
+cd ../client
+npm install
 ```
 
-### Bước 2: Chạy Server (Terminal 1)
-```bash
-npm run dev:server
-```
-* API Health: [http://localhost:3001/api/v1/health](http://localhost:3001/api/v1/health)
-* Media Origin: [http://localhost:3001/media](http://localhost:3001/media)
+### Bước 2: Khởi động hệ thống
+Mở 2 cửa sổ terminal riêng biệt:
 
-### Bước 3: Chạy Client (Terminal 2)
-```bash
-npm run dev:client
-```
-* Truy cập giao diện: [http://localhost:5173](http://localhost:5173)
+* **Terminal 1 — Khởi động API Server:**
+  ```bash
+  cd server
+  npm run dev
+  ```
+  * Server lắng nghe tại: `http://localhost:3001`
+  * API Health Check: `http://localhost:3001/api/v1/health`
+  * Media Origin: `http://localhost:3001/media`
+
+* **Terminal 2 — Khởi động Web Client:**
+  ```bash
+  cd client
+  npm run dev
+  ```
+  * Mở trình duyệt truy cập: `http://localhost:5173`
 
 ---
 
-## 3. Kịch bản Demo 90 giây trước Hội Đồng / Giảng Viên
+## 📁 4. Cấu trúc thư mục dự án
 
-1. **Bước 1 (00s - 20s) — Minh chứng Video Path:**
-   * Mở giao diện `http://localhost:5173`.
-   * Bấm nút Play trên video mẫu **Demo Ready Video (720p HLS)**.
-   * Mở **F12 &gt; Network tab**, lọc `.ts` hoặc `.m3u8`.
-   * *Giải thích:* *"Hệ thống dùng giao thức HLS. Thầy/cô thấy trình duyệt đang tải `master.m3u8` và các file `segment.ts` độ dài 4 giây trực tiếp từ Media Server."*
-2. **Bước 2 (20s - 35s) — Minh chứng Adaptive Bitrate:**
-   * Đổi chất lượng từ **Auto** sang **360p** hoặc **720p** trên thanh điều khiển.
-   * *Giải thích:* *"Player chuyển đổi qua lại giữa các sub-playlist mà không cần tải lại toàn bộ video."*
-3. **Bước 3 (35s - 55s) — Minh chứng Asynchronous Ingestion:**
-   * Bấm **Tải Video Lên**, chọn file `fixtures/sample_720p.mp4` (hoặc video ngắn bất kỳ).
-   * Bấm **Bắt Đầu Upload**.
-   * *Giải thích:* *"Server trả ngay mã **HTTP 202 Accepted** cùng Video ID. Trạng thái ban đầu là `QUEUED`."*
-4. **Bước 4 (55s - 75s) — Minh chứng Queue & Transcoder:**
-   * Nhìn thấy trạng thái trên UI đổi sang **`PROCESSING`** kèm thanh tiến trình phần trăm (%).
-   * Terminal server hiển thị log FFmpeg đang xử lý ngầm.
-5. **Bước 5 (75s - 90s) — Hoàn tất chuỗi:**
-   * Trạng thái chuyển sang **`READY`**, video mới xuất hiện sẵn sàng để phát ngay lập tức.
-   * Bấm nút **Giải Thích Kiến Trúc** trên thanh menu để mở sơ đồ tổng quan đối chiếu.
+```text
+Demo-ytb-system/
+├── client/                     # Ứng dụng Frontend (React + Vite)
+│   └── src/
+│       ├── components/         # Giao diện Video Player, Upload, Studio, Mô phỏng 3D
+│       ├── services/api.ts     # Đóng gói các hàm gọi API RESTful
+│       └── types.ts            # Định nghĩa Interface dữ liệu TypeScript
+├── server/                     # Máy chủ Backend (Express + TypeScript)
+│   ├── data/                   # Nơi chứa file CSDL SQLite (mini_youtube.db)
+│   ├── storage/                # Thư mục lưu trữ media
+│   │   ├── originals/          # Video gốc người dùng tải lên
+│   │   └── videos/             # Các phân đoạn HLS và playlist (.m3u8, .ts)
+│   └── src/
+│       ├── db/                 # Cấu hình CSDL SQLite và bảng dữ liệu
+│       ├── infra/              # Redis client, CDN Edge Simulator, Stress tester
+│       ├── modules/            # Routing, Controller, Service quản lý video
+│       └── transcoding/        # Hàng đợi (Queue) & FFmpeg Transcoder
+├── docs/                       # Tài liệu hướng dẫn demo và chi tiết kiến trúc
+└── fixtures/                   # Video mẫu để chạy seed và đo benchmark
+```
 
 ---
 
-## 4. Cheat Sheet — Trả lời phản biện
+## 💡 5. Câu hỏi phản biện thường gặp khi học System Design
 
-* **Q: Tại sao trả về HTTP 202 thay vì 200?**  
-  *A: 202 Accepted biểu thị yêu cầu đã được tiếp nhận nhưng việc xử lý chưa xong. Encode video tốn CPU và thời gian, nếu giữ kết nối đồng bộ sẽ gây timeout và cạn kiệt tài nguyên server.*
-* **Q: Tại sao phải dùng HLS thay vì file MP4 nguyên bản?**  
-  *A: HLS cắt nhỏ video thành nhiều phân đoạn 4 giây, giúp người dùng xem đến đâu tải đến đó (tiết kiệm băng thông) và hỗ trợ tự động đổi độ phân giải theo tốc độ mạng mà không bị đứng hình.*
-* **Q: Làm sao tránh việc upscale video chất lượng thấp lên 720p?**  
-  *A: Worker chạy `ffprobe` trước để lấy chiều cao (height). Nếu video gốc $< 720\text{px}$, FFmpeg chỉ tạo profile 360p và `master.m3u8` chỉ liệt kê 360p.*
-* **Q: Mở rộng hệ thống này lên quy mô lớn thế nào?**  
-  *A: Thay thư mục ổ đĩa bằng Object Storage (S3/MinIO), thay in-memory queue bằng Redis BullMQ / Kafka với cụm Worker GPU riêng, và đặt CDN phía trước để cache các file `.ts`.*
+* **Q: Tại sao phải trả về HTTP 202 Accepted thay vì HTTP 200 OK khi upload video?**  
+  *Trả lời:* Mã 202 biểu thị yêu cầu đã được tiếp nhận hợp lệ nhưng quá trình xử lý chưa hoàn tất. Xử lý video là tác vụ nặng, nếu giữ kết nối đồng bộ sẽ làm cạn kiệt connection pool của server và gây timeout phía client.
+
+* **Q: Master playlist đóng vai trò gì trong kiến trúc HLS?**  
+  *Trả lời:* `master.m3u8` không chứa dữ liệu video trực tiếp mà là bảng điều hướng, khai báo các luồng video khác nhau kèm thông số kỹ thuật (độ phân giải, bitrate). Video player sẽ đọc file này trước tiên để quyết định nên tải sub-playlist nào phù hợp với tốc độ mạng hiện thời.
+
+* **Q: Hệ thống này khi đưa lên Production quy mô lớn cần nâng cấp những gì?**  
+  *Trả lời:*
+  1. Thay thư mục ổ cứng cục bộ bằng **Cloud Object Storage** (AWS S3, MinIO) kết hợp cơ chế Multipart Presigned URL để client upload thẳng lên S3 mà không đi qua server API.
+  2. Thay in-memory queue bằng hàng đợi phân tán chuẩn công nghiệp (**Kafka, RabbitMQ, Redis BullMQ**).
+  3. Cụm Worker chuyển mã video chạy độc lập trên các cụm máy chủ hỗ trợ GPU (NVIDIA NVENC) và tự động co giãn (Autoscaling).
+  4. Đặt mạng **CDN thực tế** (Cloudflare, AWS CloudFront) phía trước Media Storage để cache các file chunk `.ts` gần người dùng nhất.
