@@ -248,9 +248,6 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({ video, onClo
                 <span style={{ color: '#facc15' }}>HLS Segmented Streaming (.m3u8 + 4s .ts chunks)</span>
               </div>
             </div>
-            <p style={{ marginTop: '0.5rem', fontSize: '0.78rem', color: '#999', lineHeight: '1.4' }}>
-              💡 <em>Mẹo giải thích cho hội đồng:</em> Mở F12 &gt; Network tab. Bạn sẽ thấy Player tải <code>master.m3u8</code> trước, sau đó kéo tiếp <code>360p.m3u8</code>/<code>720p.m3u8</code> và liên tục tải các file phân đoạn <code>.ts</code> trực tiếp từ Media Server.
-            </p>
           </div>
         </div>
       </div>
