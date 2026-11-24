@@ -13,6 +13,14 @@ const storageDir = path.resolve(serverRootDir, 'storage');
 fs.mkdirSync(path.join(storageDir, 'originals'), { recursive: true });
 fs.mkdirSync(path.join(storageDir, 'videos'), { recursive: true });
 
+process.on('uncaughtException', (err) => {
+  console.error('[Uncaught Exception]', err);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[Unhandled Rejection]', reason);
+});
+
 const { app } = createApp(storageDir);
 
 app.listen(PORT, () => {

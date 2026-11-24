@@ -52,6 +52,10 @@ export class Transcoder {
       let stdout = '';
       let stderr = '';
 
+      proc.on('error', (err) => {
+        reject(new Error(`ffprobe failed to spawn: ${err.message}. Make sure ffprobe/ffmpeg is installed and in PATH.`));
+      });
+
       proc.stdout.on('data', (data) => {
         stdout += data.toString();
       });
@@ -183,6 +187,10 @@ export class Transcoder {
 
       const proc = spawn('ffmpeg', args);
       let stderr = '';
+
+      proc.on('error', (err) => {
+        reject(new Error(`ffmpeg failed to spawn: ${err.message}. Make sure ffmpeg is installed and in PATH.`));
+      });
 
       proc.stderr.on('data', (data) => {
         const text = data.toString();
