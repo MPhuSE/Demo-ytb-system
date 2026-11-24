@@ -1,6 +1,11 @@
 import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
+import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
+import ffprobeInstaller from '@ffprobe-installer/ffprobe';
+
+const ffmpegPath = process.env.FFMPEG_PATH || (ffmpegInstaller && ffmpegInstaller.path) || 'ffmpeg';
+const ffprobePath = process.env.FFPROBE_PATH || (ffprobeInstaller && ffprobeInstaller.path) || 'ffprobe';
 
 export interface VideoProbeResult {
   duration: number;
@@ -48,7 +53,7 @@ export class Transcoder {
         filePath,
       ];
 
-      const proc = spawn('ffprobe', args);
+      const proc = spawn(ffprobePath, args);
       let stdout = '';
       let stderr = '';
 
@@ -185,7 +190,7 @@ export class Transcoder {
         playlistPath,
       ];
 
-      const proc = spawn('ffmpeg', args);
+      const proc = spawn(ffmpegPath, args);
       let stderr = '';
 
       proc.on('error', (err) => {
